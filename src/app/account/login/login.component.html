@@ -1,0 +1,50 @@
+<div id="container" [formGroup]="form">
+  <h2>Login</h2>
+  <div class="input">
+    <input
+      class="input-box"
+      type="text"
+      formControlName="email"
+      placeholder="email"
+    />
+    <small
+      *ngIf="form.controls['email'].dirty && form.hasError('required', 'email')"
+      class="text-danger"
+      >email is required*</small
+    >
+  </div>
+  <div class="input">
+    <input
+      class="input-box"
+      [type]="type"
+      formControlName="password"
+      placeholder="password"
+    />
+    <div class="btn-has-icon-left" (click)="hideShowPass()">
+      <svg *ngIf="isText" class="icon">
+        <use href="/assets/img/sprite.svg#eye-open"></use>
+      </svg>
+      <svg *ngIf="!isText" class="icon">
+        <use href="/assets/img/sprite.svg#eye-close"></use>
+      </svg>
+    </div>
+    <small
+      *ngIf="
+        form.controls['password'].dirty && form.hasError('required', 'password')
+      "
+      class="text-danger text-danger-password"
+      >Password is required*</small
+    >
+  </div>
+  <div class="form-inline fr mt-4">
+    <!-- <a
+      id="forgot"
+      data-bs-toggle="modal"
+      (click)="openModal()"
+      class="font-weight-bold"
+      >Forgot password?</a
+    > -->
+  </div>
+  <button (click)="onSubmit()">Login</button>
+  {{ form.value | json }}
+</div>

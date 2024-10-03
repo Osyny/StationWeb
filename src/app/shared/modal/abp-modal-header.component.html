@@ -1,0 +1,15 @@
+<div class="modal-header mb-30" [ngClass]="{ 'name-box': name }">
+  <h1 class="modal-title">{{ title }}</h1>
+  <h1 *ngIf="name" class="text-name">{{ name }}</h1>
+  <button
+    type="button"
+    class="close"
+    aria-label="Close"
+    (click)="onCloseClick.emit()"
+  >
+    <img src="/assets/img/close.png" class="img-close" />
+    <!-- <svg class="icon" width="13" height="14">
+      <use href="../../../assets/img/sprite.svg#close"></use>
+    </svg> -->
+  </button>
+</div>

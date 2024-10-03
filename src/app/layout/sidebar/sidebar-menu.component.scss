@@ -1,0 +1,124 @@
+.icon {
+  padding: 3px;
+}
+// a {
+//   color: inherit; /* blue colors for links too */
+//   text-decoration: inherit; /* no underline */
+
+//   width: 80%;
+// }
+
+:host ::ng-deep {
+  a {
+    color: inherit; /* blue colors for links too */
+    text-decoration: inherit; /* no underline */
+
+    // span {
+    //   font-weight: 600;
+    // }
+  }
+  .p-panelmenu
+    .p-panelmenu-header:not(.p-disabled).p-highlight
+    .p-panelmenu-header-content {
+    // border: thick double #32a1ce;
+    // background-color: #d6dee0;
+    border-radius: 15px;
+    background-color: #eeeeee;
+    border: 1px solid #328be9;
+  }
+
+  .p-panelmenu
+    .p-panelmenu-content
+    .p-menuitem:not(.p-highlight):not(.p-disabled).p-focus
+    > .p-menuitem-content {
+    color: #333333;
+    font-weight: 500;
+    background: #f5f3f398 !important;
+    border-bottom: 1px solid #328be9;
+  }
+
+  .p-panelmenu
+    .p-panelmenu-content
+    .p-menuitem:not(.p-highlight):not(.p-disabled)
+    > .p-menuitem-content:hover {
+    background: #f5f3f3ad !important;
+  }
+
+  .p-panelmenu
+    .p-panelmenu-header:not(.p-disabled).p-highlight
+    .p-panelmenu-header-content {
+    color: #007ad9 !important;
+  }
+
+  // .p-panelmenu .p-panelmenu-content .p-menuitem:hover {
+  //   cursor: pointer;
+  //   background: rgb(249 247 247 / 53%) !important;
+  // }
+
+  .p-focus {
+    span {
+      color: #5b9ef3; // #32a1ce;
+      font-weight: 600;
+    }
+  }
+}
+
+// .sidebar__nav {
+//   .nav-pills {
+//     .nav-link {
+//       padding: 30px 15px 30px 50px;
+//       transition: all 0.35s ease;
+//       font-size: 1.125rem;
+//       font-weight: 500;
+//       color: var(--txt-color);
+//       border-bottom: 1px solid #dbdbdb;
+//       display: flex;
+//       align-items: center;
+//       &.active {
+//         color: var(--primary);
+//         background: #fff;
+//         svg {
+//           stroke: var(--primary);
+//         }
+//         &:hover {
+//           background: #fff;
+//           svg {
+//             stroke: var(--primary);
+//           }
+//         }
+//       }
+//       &:hover {
+//         background: var(--content-bg);
+//         svg {
+//           stroke: #3e383a;
+//         }
+//       }
+//       .icon {
+//         margin-right: 10px;
+//         margin-bottom: -2px;
+//       }
+//     }
+//   }
+// }
+
+// @media only screen and (max-width: 1199px) {
+//   .sidebar__nav {
+//     .nav-pills {
+//       .nav-link {
+//         padding: 20px 25px;
+//       }
+//     }
+//   }
+// }
+// @media only screen and (max-width: 992px) {
+//   .sidebar__nav {
+//     .nav-pills {
+//       .nav-link {
+//         padding: 15px 18px;
+//         span {
+//           left: 45px;
+//         }
+//       }
+//     }
+//   }
+// }

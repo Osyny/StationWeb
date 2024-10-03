@@ -1,0 +1,14 @@
+<div class="modal-footer justify-content-start" style="margin-top: 20px">
+  <button
+    type="button"
+    class="btn btn-default"
+    [disabled]="cancelDisabled"
+    (click)="onCancelClick.emit()"
+    style="color: #999999"
+  >
+    Cancel
+  </button>
+  <button type="submit" class="btn btn-primary" [disabled]="saveDisabled">
+    Save
+  </button>
+</div>

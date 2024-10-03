@@ -1,0 +1,72 @@
+#container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // height: 97vh;
+  flex-direction: column;
+  // background: linear-gradient(to right, rgb(182, 244, 146), rgb(51, 139, 147));
+
+  .input {
+    display: flex;
+
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+
+  .input-box {
+    background-color: #e6e6e6 !important;
+    color: #666 !important;
+    padding: 10px 20px;
+    border: 0px;
+    //margin-bottom: 10px;
+    width: 300px;
+  }
+
+  button {
+    width: 320px;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #5c2ee4;
+    color: #fff;
+    margin-top: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    border: 0;
+  }
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: none !important;
+}
+input {
+  height: 45px;
+}
+
+:host::ng-deep {
+  .btn-has-icon-left {
+    position: relative;
+    left: 133px;
+    svg {
+      width: 19px;
+      height: 15px;
+      margin-top: -38px;
+    }
+  }
+
+  .text-danger-password {
+    margin-top: -18px;
+  }
+
+  button {
+    text-align: center;
+    text-decoration: none !important;
+    display: inline-block;
+    font-size: 16px;
+  }
+  .modal-header .close {
+    text-align: center;
+    text-decoration: none !important;
+    display: inline-block;
+    font-size: 16px;
+  }
+}
