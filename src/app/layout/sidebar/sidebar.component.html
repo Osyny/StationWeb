@@ -1,0 +1,7 @@
+<aside [ngClass]="{ 'sidebar--left': sideBarLeft }" class="sidebar">
+  <button class="sidebar__button" (click)="toggleSidebar()">
+    <i class="pi pi-angle-left" style="font-size: 20px"></i>
+  </button>
+
+  <sidebar-menu [showed]="isOpenSidebar"></sidebar-menu>
+</aside>

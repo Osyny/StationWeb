@@ -1,0 +1,156 @@
+<h2 style="margin-top: 20px">Dashboard</h2>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="control-container">
+        <ul class="control-list control-list-search">
+          <li
+            class="control-list__item control-list__item--width control-list__item--search"
+          >
+            <div class="input-group input-group--border input-group--width">
+              <input
+                [disabled]="loading"
+                (keyup)="searchTextChanged($event)"
+                class="form-control input-search"
+                [(ngModel)]="filterText"
+                placeholder="Search by number or owner name"
+                name="debtNameFilter"
+                type="text"
+                pInputText
+              />
+              <div
+                class="btn-has-icon btn-link-primary btn-search"
+                (click)="lazyLoadStation(false)"
+              >
+                <i class="pi pi-search i-icon" style="font-size: 18px"></i>
+              </div>
+            </div>
+          </li>
+          <li class="control-list__item control-list__item--width">
+            <!-- <p-dropdown
+              placeholder="Filter by owner"
+              [options]="ownerSelectItems"
+              [disabled]="loading"
+              [(ngModel)]="selectedOwner"
+              [showClear]="true"
+              name="ownerName"
+              optionLabel="name"
+            /> -->
+
+            <!-- <p-dropdown
+                class="dropdown-state"
+                [options]="ownerSelectItems"
+                [(ngModel)]="selectedOwner"
+                optionLabel="name"
+                (ngModelChange)="changedOwnerFilter()"
+                [showClear]="true"
+              ></p-dropdown> -->
+            <!-- <ng-select
+                [items]="ownerSelectItems"
+                bindLabel="name"
+                bindValue="id"
+                [(ngModel)]="selectedOwner"
+              >
+              </ng-select> -->
+            <ng-select
+              [(ngModel)]="selectedOwnerId"
+              (ngModelChange)="changedOwnerFilter($event)"
+              placeholder="Filter by owner"
+              [disabled]="loading"
+            >
+              @for (owner of ownerSelectItems; track owner.id) {
+              <ng-option [value]="owner.id">{{ owner.name }}</ng-option>
+              }
+            </ng-select>
+          </li>
+        </ul>
+        <ul class="control-list control-list-search">
+          <li class="control-list__item">
+            <button
+              [disabled]="loading"
+              class="btn btn-primary"
+              (click)="editOrAdd()"
+              style="min-width: 112px; width: auto"
+            >
+              Add Station
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="_container">
+  <!-- <spiner *ngIf="!totalCount && loading"></spiner> -->
+  <div class="panel__table">
+    <div class="table-container table-container--has-input">
+      <p-table
+        [value]="chargeStations"
+        [loading]="loading"
+        [paginator]="true"
+        [rows]="rows"
+        [lazy]="true"
+        (onLazyLoad)="lazyLoadStation(false, $event)"
+        [totalRecords]="totalRecords"
+      >
+        <ng-template pTemplate="header" class="table-xl-responsive">
+          <tr>
+            <th pSortableColumn="serialNumber" class="sticky-col">
+              Serial Number
+              <p-sortIcon field="serialNumber"></p-sortIcon>
+            </th>
+            <th pSortableColumn="owner" class="sticky-col">
+              Owner
+              <p-sortIcon field="owner"></p-sortIcon>
+            </th>
+            <th>Status</th>
+            <th class="sticky-col actions">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-station>
+          <tr>
+            <td class="sticky-col truncate">{{ station?.serialNumber }}</td>
+
+            <td class="sticky-col truncate">{{ station.ownerName }}</td>
+            <td
+              class="sticky-col"
+              [ngClass]="setComparedClass(station.statusDisplayed)"
+            >
+              {{ station.statusDisplayed }}
+            </td>
+            <td class="sticky-col col-actions">
+              <div class="btns">
+                <button
+                  class="d-flex align-items-center btn-link btn-link-primary txt-16"
+                  (click)="editOrAdd(station)"
+                >
+                  <i class="pi pi-cog i-icon" style="font-size: 14px"></i>
+
+                  Details
+                </button>
+                <button
+                  class="d-flex align-items-center btn-link btn-link-success txt-16"
+                  (click)="getConfigure(station)"
+                >
+                  <i class="pi pi-briefcase i-icon" style="font-size: 14px"></i>
+
+                  Configure
+                </button>
+                <button
+                  class="d-flex align-items-center btn-link btn-link-danger txt-16"
+                  (click)="reboot(station)"
+                >
+                  <i class="pi pi-trash i-icon" style="font-size: 14px"></i>
+
+                  Reboot
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

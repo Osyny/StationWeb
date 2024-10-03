@@ -1,0 +1,26 @@
+button {
+  // width: 18px;
+  text-decoration: none !important;
+  border: none;
+  align-items: center;
+}
+.close {
+  top: -30px;
+  right: 0;
+  background-color: transparent;
+}
+.img-close {
+  width: 25px;
+  height: 25px;
+}
+.name-box {
+  justify-content: flex-start;
+  align-items: center;
+
+  .text-name {
+    margin-left: 15px;
+
+    font-weight: 400;
+    color: rgba(157, 157, 157, 1);
+  }
+}

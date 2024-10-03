@@ -1,0 +1,13 @@
+<div *ngIf="user" class="container-fluid container-fluid--height">
+  <app-header></app-header>
+  <main>
+    <div class="content d-flex">
+      <sidebar></sidebar>
+      <div class="main-box"><router-outlet></router-outlet></div>
+    </div>
+  </main>
+</div>
+
+<div *ngIf="!user" class="main-box login-box">
+  <router-outlet *ngIf="!user"></router-outlet>
+</div>
