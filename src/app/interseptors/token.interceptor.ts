@@ -26,8 +26,6 @@ export class TokenInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     const myToken = this.authService.getToken();
 
-    // this.start.load();
-    debugger;
     if (myToken) {
       request = request.clone({
         setHeaders: { Authorization: `Bearer ${myToken}` }, // "Bearer "+myToken
@@ -36,14 +34,13 @@ export class TokenInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((err: any) => {
-        debugger;
         if (err instanceof HttpErrorResponse) {
           if (err.status === 401) {
             this.toastr.warning(
               'Token is expired, Please Login again',
               'Warning'
             );
-            this.authService.logout();
+            this.authService.removeStore();
             this.router.navigateByUrl('/');
             // handle
             // return this.handleUnAuthorizedError(request, next);
@@ -78,7 +75,6 @@ export class TokenInterceptor implements HttpInterceptor {
     // );
   }
 
-  // debugger;
   // return next.handle(request).pipe(
   //   tap(
   //     () => {},
@@ -87,7 +83,6 @@ export class TokenInterceptor implements HttpInterceptor {
   //         if (err.status !== 401) {
   //           return;
   //         }
-  //         debugger;
   //         //  this.authService.logout();
   //         this.router.navigateByUrl('/');
   //       }

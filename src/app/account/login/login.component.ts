@@ -66,6 +66,7 @@ export class LoginComponent implements OnInit {
           this.toastr.error('Gmail or password is wrong!', 'Error');
         } else {
           this.auth.storeToken(res.token);
+          this.auth.setLocalData(res);
           //  this.auth.storeRefreshToken(res.refreshToken);
           const tokenPayload = this.auth.decodedToken();
 
