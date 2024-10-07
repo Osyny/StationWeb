@@ -37,8 +37,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['showed']) {
-      debugger;
-
       this.items = this.getItems(this.showed, true);
       this.changeDetection.detectChanges();
     }
@@ -62,7 +60,7 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
   // private fixActiveItems(items: MenuItem[]): MenuItem[] {
   //   items.forEach((item) => {
   //     if (this.activeItem?.['key'] === item?.['key']) {
-  //       debugger;
+
   //       item.command = (e) => e.item;
   //       item.expanded = true;
   //     }
@@ -80,7 +78,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
         ? this.items.find((m) => m['key'] === item['key'])
         : subitems.find((m) => m['key'] === item['key']);
       if (foundItem) {
-        debugger;
         item.command = foundItem.command;
         item.expanded = foundItem.expanded;
       }
@@ -151,13 +148,12 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
   getItems(withoutLabel: boolean, isChanged: boolean): MenuItem[] {
     let items = this.menuItems;
-    debugger;
+
     if (withoutLabel) {
       items = this.setEmptyMenuItem(
         this.items?.length ? this.items : this.menuItems
       );
     } else {
-      debugger;
       items = this.fixActiveItems(this.menuItems);
     }
 

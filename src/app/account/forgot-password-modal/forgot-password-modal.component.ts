@@ -36,9 +36,7 @@ export class ForgotPasswordModalComponent
 
   private $unsubscribe = new Subject<void>();
 
-  ngOnInit(): void {
-    debugger;
-  }
+  ngOnInit(): void {}
   ngOnDestroy(): void {
     this.$unsubscribe.next();
     this.$unsubscribe.complete();

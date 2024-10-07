@@ -91,19 +91,19 @@ export class AuthService {
       params,
     });
 
-    res.subscribe((r) => {
-      if (r?.token) {
-        let user = r?.user;
-        let token = r?.token;
-        this.isAuthorized = true;
+    // res.subscribe((r) => {
+    //   if (r?.token) {
+    //     let user = r?.user;
+    //     let token = r?.token;
+    //     this.isAuthorized = true;
 
-        localStorage.setItem('token', JSON.stringify(token));
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        this.cookie.set('token', token);
-        this.userSubject?.next(user);
-        this.user = this.userSubject?.asObservable();
-      }
-    });
+    //     localStorage.setItem('token', JSON.stringify(token));
+    //     localStorage.setItem('currentUser', JSON.stringify(user));
+    //     this.cookie.set('token', token);
+    //     this.userSubject?.next(user);
+    //     this.user = this.userSubject?.asObservable();
+    //   }
+    // });
 
     return res;
   }
@@ -121,13 +121,31 @@ export class AuthService {
     let res = this.http
       .get(`${this.apiUrl}/Account/logout`)
       .subscribe((res) => {
-        this.isAuthorized = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem('currentUser');
-        this.cookie.delete('token');
-        this.userSubject?.next(null);
-        this.router.navigateByUrl('/');
+        this.removeStore();
       });
+  }
+
+  removeStore() {
+    this.isAuthorized = false;
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    this.cookie.delete('token');
+    this.userSubject?.next(null);
+    this.router.navigateByUrl('/');
+  }
+
+  setLocalData(response: AccountResponse) {
+    if (response?.token) {
+      let user = response?.user;
+      let token = response?.token;
+      this.isAuthorized = true;
+      if (this.localStorage) {
+        this.localStorage.setItem('currentUser', JSON.stringify(user));
+        this.cookie.set('token', token);
+        this.userSubject?.next(user);
+        this.user = this.userSubject?.asObservable();
+      }
+    }
   }
 
   getToken() {

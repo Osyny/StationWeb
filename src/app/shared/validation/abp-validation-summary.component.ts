@@ -60,7 +60,6 @@ export class AbpValidationSummaryComponent
   }
 
   @Input() set customValidationErrors(val: AbpValidationError[]) {
-    debugger;
     if (val && val.length > 0) {
       const defaults = this.defaultValidationErrors.filter(
         (defaultValidationError) =>
@@ -82,7 +81,6 @@ export class AbpValidationSummaryComponent
   }
 
   getValidationError(validationError: AbpValidationError) {
-    debugger;
     let result = '';
     if (this.control?.errors) {
       result = this.control?.errors[validationError.name];
