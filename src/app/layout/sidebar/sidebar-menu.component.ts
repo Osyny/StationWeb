@@ -44,8 +44,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
   ngOnInit(): void {
     this.items = this.getItems(this.showed, false);
-    // this.itemsClose = this.getItems(true);
-    // this.itemsOpen = this.getItems(false);
 
     this.changeDetection.detectChanges();
   }
@@ -57,34 +55,27 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
     });
   }
 
-  // private fixActiveItems(items: MenuItem[]): MenuItem[] {
-  //   items.forEach((item) => {
-  //     if (this.activeItem?.['key'] === item?.['key']) {
-
-  //       item.command = (e) => e.item;
-  //       item.expanded = true;
-  //     }
-  //     if (item.items) {
-  //       this.fixActiveItems(item.items);
-  //     }
-  //   });
-
-  //   return items;
-  // }
-
   private fixActiveItems(items: MenuItem[], subitems?: MenuItem[]): MenuItem[] {
-    items.forEach((item) => {
-      let foundItem = !subitems
-        ? this.items.find((m) => m['key'] === item['key'])
-        : subitems.find((m) => m['key'] === item['key']);
-      if (foundItem) {
-        item.command = foundItem.command;
-        item.expanded = foundItem.expanded;
-      }
-      if (item.items) {
-        this.fixActiveItems(item.items, subitems);
-      }
-    });
+    if (!this.activeItem) {
+      let foundDashboardItem = items[0];
+
+      this.activeItem = foundDashboardItem;
+      foundDashboardItem.command = (e) => e.item;
+      foundDashboardItem.expanded = true;
+    } else {
+      items.forEach((item) => {
+        let foundItem = !subitems
+          ? this.items.find((m) => m['key'] === item['key'])
+          : subitems.find((m) => m['key'] === item['key']);
+        if (foundItem) {
+          item.command = foundItem.command;
+          item.expanded = foundItem.expanded;
+        }
+        if (item.items) {
+          this.fixActiveItems(item.items, subitems);
+        }
+      });
+    }
 
     return items;
   }
@@ -148,7 +139,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
 
   getItems(withoutLabel: boolean, isChanged: boolean): MenuItem[] {
     let items = this.menuItems;
-
     if (withoutLabel) {
       items = this.setEmptyMenuItem(
         this.items?.length ? this.items : this.menuItems
@@ -160,5 +150,26 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
     this.fixupItems(items);
 
     return items;
+  }
+
+  activeMenu(event: any) {
+    let node;
+    if (event.target.classList.contains('p-submenu-header') == true) {
+      node = 'submenu';
+    } else if (event.target.tagName === 'SPAN') {
+      node = event.target.parentNode.parentNode;
+    } else {
+      node = event.target.parentNode;
+    }
+
+    if (node != 'submenu') {
+      let menuitem = document.getElementsByClassName(
+        'p-panelmenu-header-content'
+      );
+      for (let i = 0; i < menuitem.length; i++) {
+        menuitem[i].classList.remove('active');
+      }
+      node.classList.add('active');
+    }
   }
 }
