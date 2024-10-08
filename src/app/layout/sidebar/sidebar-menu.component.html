@@ -1,6 +1,3 @@
 <div class="card flex justify-content-center">
-  <p-panelMenu [model]="items"></p-panelMenu>
+  <p-panelMenu [model]="items" (click)="activeMenu($event)"></p-panelMenu>
 </div>
-<!-- <div *ngIf="!showed" class="card flex justify-content-center">
-  <p-panelMenu [model]="itemsOpen"></p-panelMenu>
-</div> -->

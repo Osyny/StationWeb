@@ -8,14 +8,13 @@ import {
 } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line:component-selector
   selector: 'sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SidebarComponent implements OnInit {
-  sideBarLeft = false;
+  sideBarLeft = true;
   sidebarClose = false;
 
   constructor(private renderer: Renderer2) {}
@@ -31,10 +30,6 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this._layoutStore.sidebarExpanded.subscribe((value) => {
-    //   this.sidebarExpanded = value;
-
-    // });
     this.toggleSidebar();
   }
 }
