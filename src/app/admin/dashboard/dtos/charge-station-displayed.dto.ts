@@ -10,4 +10,5 @@ export class ChargeStationDisplayedDto implements ChargeStationDto {
   status: boolean = false;
   statusDisplayed: string = '';
   id: number = 0;
+  name?: string;
 }
