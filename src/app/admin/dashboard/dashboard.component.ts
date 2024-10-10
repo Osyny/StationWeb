@@ -42,8 +42,6 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
     });
-    // throw new Error('Method not implemented.');
-    this.lazyLoadStation(false);
   }
 
   lazyLoadStation(isFilter: boolean, event?: TableLazyLoadEvent) {

@@ -91,6 +91,13 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
       },
       {
         key: '1',
+        label: 'Test',
+        icon: 'pi pi-list',
+
+        routerLink: ['/admin/test'],
+      },
+      {
+        key: '2',
         label: 'Tasks',
         icon: 'pi pi-server',
         items: [

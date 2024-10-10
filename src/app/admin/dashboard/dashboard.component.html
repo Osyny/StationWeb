@@ -14,7 +14,7 @@
                 (keyup)="searchTextChanged($event)"
                 class="form-control input-search"
                 [(ngModel)]="filterText"
-                placeholder="Search by number or owner name"
+                placeholder="Search by ..."
                 name="debtNameFilter"
                 type="text"
                 pInputText
@@ -101,6 +101,10 @@
               Serial Number
               <p-sortIcon field="serialNumber"></p-sortIcon>
             </th>
+            <th pSortableColumn="name" class="sticky-col">
+              Name
+              <p-sortIcon field="name"></p-sortIcon>
+            </th>
             <th pSortableColumn="owner" class="sticky-col">
               Owner
               <p-sortIcon field="owner"></p-sortIcon>
@@ -112,6 +116,7 @@
         <ng-template pTemplate="body" let-station>
           <tr>
             <td class="sticky-col truncate">{{ station?.serialNumber }}</td>
+            <td class="sticky-col truncate">{{ station?.name }}</td>
 
             <td class="sticky-col truncate">{{ station.ownerName }}</td>
             <td
