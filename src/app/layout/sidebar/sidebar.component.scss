@@ -32,10 +32,9 @@
     }
   }
   &.sidebar--left {
-    // margin-left: -180px;
-    width: 111px;
+    width: 78px;
     @media only screen and (max-width: 1199px) {
-      width: 80px;
+      width: 70px;
     }
 
     .sidebar {

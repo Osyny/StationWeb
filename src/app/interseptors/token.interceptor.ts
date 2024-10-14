@@ -25,6 +25,7 @@ export class TokenInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     const myToken = this.authService.getToken();
+    const existCookie = this.authService.existCookie;
 
     if (myToken) {
       request = request.clone({
@@ -35,7 +36,7 @@ export class TokenInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((err: any) => {
         if (err instanceof HttpErrorResponse) {
-          if (err.status === 401) {
+          if (err.status === 401 || !existCookie) {
             this.toastr.warning(
               'Token is expired, Please Login again',
               'Warning'
