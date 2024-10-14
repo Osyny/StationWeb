@@ -69,8 +69,6 @@ export class AuthService {
       let token = r.token;
 
       if (user) {
-        //  this.session = user;
-
         localStorage.setItem('token', JSON.stringify(token));
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.cookie.set('test-cookies', token);
@@ -91,25 +89,10 @@ export class AuthService {
       params,
     });
 
-    // res.subscribe((r) => {
-    //   if (r?.token) {
-    //     let user = r?.user;
-    //     let token = r?.token;
-    //     this.isAuthorized = true;
-
-    //     localStorage.setItem('token', JSON.stringify(token));
-    //     localStorage.setItem('currentUser', JSON.stringify(user));
-    //     this.cookie.set('token', token);
-    //     this.userSubject?.next(user);
-    //     this.user = this.userSubject?.asObservable();
-    //   }
-    // });
-
     return res;
   }
 
   logout() {
-    // });
     const token = `Bearer ${localStorage.getItem('token')}`;
 
     const httpOptions = {
@@ -146,6 +129,12 @@ export class AuthService {
         this.user = this.userSubject?.asObservable();
       }
     }
+  }
+
+  get existCookie() {
+    let res: boolean = !this.cookie.getAll() ? false : true;
+
+    return res;
   }
 
   getToken() {
