@@ -6,11 +6,16 @@ import { PrimengTableHelper } from '../../helpers/primeng-table-helper';
 import { DataInput } from './dtos/data-input.dto';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { ChargeStationService } from '../../services/charge-station.service';
-import { ChargeStationDto } from '../../models/charge-station.model';
+import {
+  ChargeStationDto,
+  ChargeStationResponse,
+} from '../../models/charge-station.model';
 import { ChargeStationDisplayedDto } from './dtos/charge-station-displayed.dto';
 import { InputHelper } from '../../helpers/input-helper';
 import { DropdownItem, SelectItem } from './dtos/owner-select-list.dto';
 import { FormControl, FormGroup } from '@angular/forms';
+import { SignalrService } from '../../services/signalr.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,23 +33,35 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
   totalRecords: number = 0;
   selectedOwnerId!: number;
   ownerSelectItems: SelectItem[] = [];
+  inputData = new DataInput();
 
   $unsubscribe = new Subject<void>();
   private readonly _primengTableHelper = new PrimengTableHelper();
 
   constructor(
     injector: Injector,
-    private chargeStationService: ChargeStationService
+    private chargeStationService: ChargeStationService,
+    public signalRService: SignalrService,
+    private authService: AuthService
   ) {
     super(injector);
   }
   ngOnInit(): void {
+    //  this.signalRService.startConnection();
+    // this.signalRService.addStationDataListener();
+
+    setInterval(() => this.lazyLoadStation(false, true), 10000);
+
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
     });
   }
 
-  lazyLoadStation(isFilter: boolean, event?: TableLazyLoadEvent) {
+  lazyLoadStation(
+    isFilter: boolean,
+    isUpdate?: boolean,
+    event?: TableLazyLoadEvent
+  ) {
     if (
       !isFilter &&
       this._primengTableHelper.isSkipLoading(this.totalRecords)
@@ -52,14 +69,44 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
       return;
     }
 
-    const input = new DataInput();
-    input.rows = event ? event.rows : this.rows;
-    input.skip = event ? event.first : this.first;
-    input.filterText = !this.filterText ? '' : this.filterText;
-    input.sorting = this._primengTableHelper.getSortingFromLazyLoad(event);
-    input.filterOwnerId = !this.selectedOwnerId ? 0 : this.selectedOwnerId;
-    setTimeout(() => this.loadStations(input));
+    this.inputData.rows = event ? event.rows : this.rows;
+    this.inputData.skip = event ? event.first : this.first;
+    this.inputData.filterText = !this.filterText ? '' : this.filterText;
+    this.inputData.sorting =
+      this._primengTableHelper.getSortingFromLazyLoad(event);
+    this.inputData.filterOwnerId = !this.selectedOwnerId
+      ? 0
+      : this.selectedOwnerId;
+    if (isUpdate) {
+      setTimeout(() => this.startHttpRequest());
+    } else {
+      setTimeout(() => this.loadStations(this.inputData));
+    }
   }
+
+  private startHttpRequest = () => {
+    let token = this.authService.getToken();
+    if (this.authService.getToken()) {
+      this.chargeStationService
+        .getUpdateStatuses()
+        .pipe(
+          takeUntil(this.$unsubscribe),
+          finalize(() => (this.loading = false))
+        )
+        .subscribe((res) => {
+          console.log('UPDATE: ');
+          this.chargeStations.forEach((st) => {
+            let foundDisplayed = res.chargeStations?.find(
+              (station) => station.id === st.id
+            );
+
+            st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
+            st.statusDisplayed = st.status ? 'online' : 'offline';
+            console.log(`${st.id} -> ${st.status}`);
+          });
+        });
+    }
+  };
 
   loadStations(input: DataInput) {
     this.loading = true;
@@ -71,16 +118,24 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
         finalize(() => (this.loading = false))
       )
       .subscribe((res) => {
-        this.loading = false;
-        this.chargeStations = res.chargeStations?.map((station, i) =>
-          this.mapToDisplayStation(station, i)
-        );
-
-        this.ownerSelectItems = this.ownerSelectItems.sort((a, b) =>
-          a.name < b.name ? -1 : 1
-        );
-        this.totalRecords = res.total;
+        this.setDataStation(res);
       });
+  }
+
+  setDataStation(res: ChargeStationResponse) {
+    this.loading = false;
+    this.chargeStations = res.chargeStations?.map((station, i) =>
+      this.mapToDisplayStation(station, i)
+    );
+
+    this.ownerSelectItems = this.ownerSelectItems.sort((a, b) =>
+      a.name < b.name ? -1 : 1
+    );
+    this.totalRecords = res.total;
+  }
+
+  loadUpdateStations(input: DataInput) {
+    this.loading = true;
   }
 
   mapToDisplayStation(

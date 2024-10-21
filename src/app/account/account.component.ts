@@ -9,9 +9,10 @@ import { AuthService } from '../services/auth.service';
   styleUrl: './account.component.scss',
 })
 export class AccountComponent {
-  isAuthenticated: boolean = false;
+  isAuthorized: boolean = false;
   constructor(private authService: AuthService, private router: Router) {
-    if (this.authService.isAuthorized) {
+    this.isAuthorized = this.authService.isAuthorized;
+    if (this.isAuthorized) {
       this.router.navigateByUrl('/admin');
     }
   }

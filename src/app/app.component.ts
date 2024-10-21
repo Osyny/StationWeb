@@ -9,9 +9,11 @@ import { AuthService } from './services/auth.service';
 })
 export class AppComponent {
   user?: UserDto | null;
+  isAuthorized: boolean = false;
 
   constructor(private authService: AuthService) {
     this.authService.user?.subscribe((x) => (this.user = x));
+    this.isAuthorized = this.authService.isAuthorized;
   }
   title = 'ElectricStationWeb';
 }

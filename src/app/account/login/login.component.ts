@@ -23,6 +23,7 @@ export class LoginComponent implements OnInit {
   isText: boolean = false;
   eyeIcon: string = 'fa-eye-slash';
   modalRef!: BsModalRef;
+  isAuthorized: boolean = false;
 
   $unsubscribe = new Subject<void>();
 
@@ -35,7 +36,9 @@ export class LoginComponent implements OnInit {
     private userStore: UserStoreService,
     private auth: AuthService,
     private modalService: BsModalService
-  ) {}
+  ) {
+    this.isAuthorized = this.authService.isAuthorized;
+  }
 
   ngOnInit() {
     this.form = this.formBuilder.group({

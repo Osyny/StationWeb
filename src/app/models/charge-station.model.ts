@@ -21,3 +21,7 @@ export interface OwnerDto {
   id?: number;
   name: string;
 }
+
+export interface StationResponse {
+  chargeStations: ChargeStationDto[];
+}

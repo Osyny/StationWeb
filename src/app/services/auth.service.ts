@@ -132,7 +132,8 @@ export class AuthService {
   }
 
   get existCookie() {
-    let res: boolean = !this.cookie.getAll() ? false : true;
+    let cookies = this.cookie.get('token');
+    let res: boolean = !cookies ? false : true;
 
     return res;
   }
