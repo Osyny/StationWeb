@@ -92,7 +92,7 @@
         [paginator]="true"
         [rows]="rows"
         [lazy]="true"
-        (onLazyLoad)="lazyLoadStation(false, $event)"
+        (onLazyLoad)="lazyLoadStation(false, false, $event)"
         [totalRecords]="totalRecords"
       >
         <ng-template pTemplate="header" class="table-xl-responsive">

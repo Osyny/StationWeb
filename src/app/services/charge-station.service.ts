@@ -3,7 +3,11 @@ import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { DataInput } from '../admin/dashboard/dtos/data-input.dto';
 import { Observable } from 'rxjs';
-import { ChargeStationResponse } from '../models/charge-station.model';
+import {
+  ChargeStationDto,
+  ChargeStationResponse,
+  StationResponse,
+} from '../models/charge-station.model';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +29,14 @@ export class ChargeStationService {
       {
         params,
       }
+    );
+
+    return res;
+  }
+
+  getUpdateStatuses(): Observable<StationResponse> {
+    let res = this.http.get<StationResponse>(
+      `${this.apiUrl}/ChargeStation/getUpdateStatuses`
     );
 
     return res;

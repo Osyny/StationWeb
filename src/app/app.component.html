@@ -3,11 +3,13 @@
   <main>
     <div class="content d-flex">
       <sidebar></sidebar>
-      <div class="main-box"><router-outlet></router-outlet></div>
+      <div class="authorized-main-box"><router-outlet></router-outlet></div>
     </div>
   </main>
 </div>
 
-<div *ngIf="!user" class="main-box login-box">
-  <router-outlet *ngIf="!user"></router-outlet>
+<div [hidden]="user">
+  <div class="main-box login-box">
+    <router-outlet></router-outlet>
+  </div>
 </div>
