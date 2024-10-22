@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Injector, OnInit } from '@angular/core';
 
 import { AppComponentBase } from '../../shared/app-component-base';
 import { TableLazyLoadEvent } from 'primeng/table';
@@ -16,13 +16,18 @@ import { DropdownItem, SelectItem } from './dtos/owner-select-list.dto';
 import { FormControl, FormGroup } from '@angular/forms';
 import { SignalrService } from '../../services/signalr.service';
 import { AuthService } from '../../services/auth.service';
+import { DashboardPageService } from '../../shared/helpers/dashboard-page-service';
+import { PageRedirectEnumForAdmin } from '../../enums/page-redirect.enum';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent extends AppComponentBase implements OnInit {
+export class DashboardComponent
+  extends AppComponentBase
+  implements OnInit, AfterViewInit
+{
   chargeStations: ChargeStationDisplayedDto[] = [];
   loading = false;
   formDropdownGroup!: FormGroup;
@@ -34,6 +39,7 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
   selectedOwnerId!: number;
   ownerSelectItems: SelectItem[] = [];
   inputData = new DataInput();
+  isActiveDashboard: boolean = false;
 
   $unsubscribe = new Subject<void>();
   private readonly _primengTableHelper = new PrimengTableHelper();
@@ -47,6 +53,9 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     super(injector);
   }
   ngOnInit(): void {
+    DashboardPageService.getInstance().subsribe((page) => {
+      this.isActiveDashboard = page === '1';
+    });
     //  this.signalRService.startConnection();
     // this.signalRService.addStationDataListener();
 
@@ -55,6 +64,12 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
     });
+  }
+
+  ngAfterViewInit(): void {
+    DashboardPageService.getInstance().setData(
+      `${PageRedirectEnumForAdmin.dashboard}`
+    );
   }
 
   lazyLoadStation(
@@ -86,7 +101,7 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
 
   private startHttpRequest = () => {
     let token = this.authService.getToken();
-    if (this.authService.getToken()) {
+    if (this.authService.getToken() && this.isActiveDashboard) {
       this.chargeStationService
         .getUpdateStatuses()
         .pipe(
