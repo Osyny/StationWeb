@@ -41,4 +41,11 @@ export class ChargeStationService {
 
     return res;
   }
+  getUpdateStatusesAsync(): Observable<StationResponse> {
+    let res = this.http.get<StationResponse>(
+      `${this.apiUrl}/ChargeStation/getUpdateStatusesAsync`
+    );
+
+    return res;
+  }
 }

@@ -56,10 +56,9 @@ export class DashboardComponent
     DashboardPageService.getInstance().subsribe((page) => {
       this.isActiveDashboard = page === '1';
     });
-    //  this.signalRService.startConnection();
-    // this.signalRService.addStationDataListener();
 
     setInterval(() => this.lazyLoadStation(false, true), 10000);
+    //this.startHttpRequestSignalR1();
 
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
@@ -103,7 +102,7 @@ export class DashboardComponent
     let token = this.authService.getToken();
     if (this.authService.getToken() && this.isActiveDashboard) {
       this.chargeStationService
-        .getUpdateStatuses()
+        .getUpdateStatusesAsync()
         .pipe(
           takeUntil(this.$unsubscribe),
           finalize(() => (this.loading = false))
@@ -206,4 +205,24 @@ export class DashboardComponent
   changedOwnerFilter($event: any) {
     this.lazyLoadStation(true);
   }
+
+  private startHttpRequestSignalR1 = () => {
+    let token = this.authService.getToken();
+    if (this.authService.getToken()) {
+      this.signalRService.hubConnection?.invoke('Hello').catch((error) => {
+        console.log(`Signal R error -> ${error}`);
+      });
+
+      this.signalRService.hubConnection
+        ?.invoke('GetUpdateStatuses')
+        .catch((error) => {
+          console.log(`Signal R error -> ${error}`);
+        });
+
+      this.signalRService?.hubHelloMessage?.subscribe((r) => {
+        let res = r;
+        console.log(`Signal R  --> ${res}`);
+      });
+    }
+  };
 }

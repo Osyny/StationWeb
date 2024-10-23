@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { AdminRoutingModule } from './admin-routing.module';
@@ -10,6 +10,7 @@ import { TestComponent } from './test/test.component';
 import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { SignalrService } from '../services/signalr.service';
 
 @NgModule({
   declarations: [AdminComponent, DashboardComponent, TestComponent],
