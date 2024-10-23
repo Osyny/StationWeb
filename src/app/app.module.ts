@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import {
   BrowserModule,
   provideClientHydration,
@@ -22,6 +22,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { TokenInterceptor } from './interseptors/token.interceptor';
 import { ToastrModule } from 'ngx-toastr';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { SignalrService } from './services/signalr.service';
 //import { TokenInterceptor } from './interseptors/token.interceptor';
 
 @NgModule({
@@ -47,6 +48,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     ToastrModule.forRoot(),
     ModalModule.forRoot(),
   ],
+
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
@@ -55,6 +57,14 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     },
     provideClientHydration(),
     CookieService,
+    // SignalrService,
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: (signalrService: SignalrService) => () =>
+    //     signalrService.initiateSignalrConnection(),
+    //   deps: [SignalrService],
+    //   multi: true,
+    // },
   ],
   bootstrap: [AppComponent],
 })
