@@ -24,10 +24,7 @@ import { PageRedirectEnumForAdmin } from '../../enums/page-redirect.enum';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent
-  extends AppComponentBase
-  implements OnInit, AfterViewInit
-{
+export class DashboardComponent extends AppComponentBase implements OnInit {
   chargeStations: ChargeStationDisplayedDto[] = [];
   loading = false;
   formDropdownGroup!: FormGroup;
@@ -53,8 +50,11 @@ export class DashboardComponent
     super(injector);
   }
   ngOnInit(): void {
+    DashboardPageService.getInstance().setData(
+      PageRedirectEnumForAdmin.dashboard
+    );
     DashboardPageService.getInstance().subsribe((page) => {
-      this.isActiveDashboard = page === '1';
+      this.isActiveDashboard = page === 1;
     });
 
     setInterval(() => this.lazyLoadStation(false, true), 10000);
@@ -63,12 +63,6 @@ export class DashboardComponent
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
     });
-  }
-
-  ngAfterViewInit(): void {
-    DashboardPageService.getInstance().setData(
-      `${PageRedirectEnumForAdmin.dashboard}`
-    );
   }
 
   lazyLoadStation(

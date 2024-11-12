@@ -4,16 +4,18 @@ import {
   Injector,
   Input,
   OnInit,
-  SimpleChanges,
 } from '@angular/core';
-
-import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router';
+import {
+  Router,
+  RouterEvent,
+  NavigationEnd,
+  PRIMARY_OUTLET,
+  Event,
+} from '@angular/router';
 
 import { AppComponentBase } from '../../shared/app-component-base';
-import { MenuItem } from 'primeng/api/public_api';
+import { MenuItem } from '../../shared/layout/menu-item';
 import { DashboardPageService } from '../../shared/helpers/dashboard-page-service';
-import { BehaviorSubject, filter } from 'rxjs';
-import { ActiveMenuItemDto } from './dtos/active-item-menu.dto';
 
 @Component({
   selector: 'sidebar-menu',
@@ -21,228 +23,151 @@ import { ActiveMenuItemDto } from './dtos/active-item-menu.dto';
   styleUrls: ['./sidebar-menu.component.scss'],
 })
 export class SidebarMenuComponent extends AppComponentBase implements OnInit {
-  @Input() showed: boolean = false;
-  isOpen: boolean = false;
-  itemsClose: MenuItem[] = [];
-  itemsOpen: MenuItem[] = [];
-  items: MenuItem[] = [];
-  activeItem?: MenuItem;
-  keyActivePage?: string;
+  menuItems: MenuItem[] = [];
+  menuItemsMap: { [key: number]: MenuItem } = {};
+  activatedMenuItems: MenuItem[] = [];
+  // routerEvents: BehaviorSubject<RouterEvent> = new BehaviorSubject(undefined);
+  homeRoute = '/app/about';
+  primaryUrlSegmentGroup?: string;
 
-  homeRoute = '/admin';
-  currentUrl?: string;
+  // user: UserLoginInfoDto;
 
   constructor(
     injector: Injector,
     private router: Router,
-    private activatedRoute: ActivatedRoute,
     private changeDetection: ChangeDetectorRef
   ) {
     super(injector);
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['showed']) {
-      if (!this.items.length) {
-        this.items = this.getItems(this.showed, false);
-      }
-      this.changeDetection.detectChanges();
-    }
+    // this.router.events.subscribe(this.routerEvents);
   }
 
   ngOnInit(): void {
     DashboardPageService.getInstance().subsribe((page) => {
       this.getActiveLocationPage(page);
     });
-
-    this.router.events.subscribe((event: Event) => {
-      if (event instanceof NavigationEnd) {
-        this.currentUrl = event.url;
-        if (!this.items.length || !this.activeItem) {
-          this.items = this.getItems(this.showed, false);
-        }
-      }
-    });
-
+    this.setMenuItems();
     this.changeDetection.detectChanges();
   }
 
-  getActiveLocationPage(page: string) {
-    if (page) {
-      this.keyActivePage = page;
-      this.fixActiveItemAfterClick(this.menuItems);
-      this.changeDetection.detectChanges();
-    }
+  getMenuItems(): MenuItem[] {
+    return [
+      new MenuItem('Dashboard', '/admin', 'welcome', ''),
+      new MenuItem('Tasks', '', '', '', [
+        new MenuItem('Test', '/admin/test', 'dots-vertical1', '', [], true),
+        new MenuItem('Users2_1', '/', 'dots-vertical1', '', [], true),
+      ]),
+    ];
   }
 
-  private fixupItems(items?: MenuItem[]): void {
-    items?.forEach((item) => {
-      item.command = (e) => (this.activeItem = e.item);
-      this.fixupItems(item?.items);
+  setMenuItems() {
+    this.menuItems = this.getMenuItems();
+    this.patchMenuItems(this.menuItems);
+    this.router.events.subscribe((event: Event) => {
+      if (event instanceof NavigationEnd) {
+        let currentUrl = this.homeRoute;
+        if (event.url !== '/') {
+          currentUrl = event.url;
+        } else if (
+          event instanceof NavigationEnd &&
+          !!event.urlAfterRedirects &&
+          event.urlAfterRedirects !== '/'
+        ) {
+          currentUrl = event.urlAfterRedirects;
+        }
+        const primaryUrlSegmentGroup =
+          this.router.parseUrl(currentUrl).root.children[PRIMARY_OUTLET];
+
+        if (primaryUrlSegmentGroup) {
+          this.primaryUrlSegmentGroup = '/' + primaryUrlSegmentGroup.toString();
+          this.activateMenuItems(this.primaryUrlSegmentGroup);
+        }
+      }
     });
   }
 
-  get menuItems(): MenuItem[] {
-    const items = [
-      {
-        key: '1',
-        label: 'Dashboard',
-        icon: 'pi pi-home',
-
-        routerLink: ['/admin'],
-      },
-
-      {
-        key: '2',
-        label: 'Tasks',
-        icon: 'pi pi-server',
-        items: [
-          {
-            key: '2_1',
-            label: 'Test',
-            icon: 'pi pi-chart-bar',
-
-            routerLink: ['/admin/test'],
-          },
-          {
-            key: '2_2',
-            label: 'Pending',
-
-            routerLink: ['/'],
-          },
-          {
-            key: '2_3',
-            label: 'Overdue',
-
-            routerLink: ['/test2'],
-          },
-        ],
-      },
-    ];
-    return items;
-  }
-
-  setEmptyMenuItem(items: MenuItem[]): MenuItem[] {
-    let r: MenuItem[] = [];
-    if (items) {
-      r = items.map((i) => {
-        i.label = '';
-        let subMenu: MenuItem[] = [];
-        if (i.items) {
-          subMenu = this.setEmptyMenuItem(i.items);
-          i.items = subMenu;
-        }
-        return i;
-      });
-      items = r;
-    }
-
-    return r;
-  }
-
-  getItems(withoutLabel: boolean, isChanged: boolean): MenuItem[] {
-    let items = this.menuItems;
-    if (withoutLabel) {
-      items = this.setEmptyMenuItem(
-        this.items?.length ? this.items : this.menuItems
-      );
-    } else {
-      items = this.fixActiveItems(this.menuItems);
-    }
-
-    this.fixupItems(items);
-
-    return items;
-  }
-
-  private fixActiveItems(items: MenuItem[], subitems?: MenuItem[]): MenuItem[] {
-    if (!this.activeItem && this.currentUrl) {
-      let foundActiveItem = this.foundActiveByCurrentUrl(items);
-
-      if (foundActiveItem.foundActiveItem) {
-        this.activeItem = foundActiveItem;
-        foundActiveItem.foundActiveItem.command = (e) => e.item;
-        foundActiveItem.foundActiveItem.expanded = true;
+  patchMenuItems(items: MenuItem[], parentId?: number): void {
+    items.forEach((item: MenuItem, index: number) => {
+      item.id = parentId ? Number(parentId + '' + (index + 1)) : index + 1;
+      if (parentId) {
+        item.parentId = parentId;
       }
-    } else {
-      items.forEach((item) => {
-        let foundItem = !subitems
-          ? this.items.find((m) => m['key'] === item['key'])
-          : subitems.find((m) => m['key'] === item['key']);
-        if (foundItem) {
-          item.command = foundItem.command;
-          item.expanded = foundItem.expanded;
-        }
-        if (item.items) {
-          this.fixActiveItems(item.items, subitems);
-        }
-      });
-    }
-    return items;
+      if (parentId || item.children) {
+        this.menuItemsMap[item.id] = item;
+      }
+      if (item.children) {
+        this.patchMenuItems(item.children, item.id);
+      }
+    });
   }
 
-  private foundActiveByCurrentUrl(items: MenuItem[]) {
-    let activeItem: ActiveMenuItemDto = new ActiveMenuItemDto();
-    let foundActiveItem: MenuItem | null | undefined;
-    let foundSubActiveItem: MenuItem | null | undefined;
-    for (let index = 0; index < items.length; index++) {
-      if (items[index]?.routerLink) {
-        let r = items[index]?.routerLink[0] === this.currentUrl;
-        if (r) {
-          foundActiveItem = items[index];
-          break;
-        }
-      }
-    }
-    if (!foundActiveItem) {
-      items.forEach((item) => {
-        if (item.items) {
-          let subMenu = this.foundActiveByCurrentUrl(item.items);
-          if (subMenu) {
-            foundActiveItem = item;
-            foundSubActiveItem = subMenu;
-            return;
-          }
-        }
-      });
-    }
-    activeItem.foundActiveItem = foundActiveItem;
-    activeItem.foundSubActiveItem = foundSubActiveItem;
-    return activeItem;
+  activateMenuItems(url: string): void {
+    this.deactivateMenuItems(this.menuItems);
+    this.activatedMenuItems = [];
+    const foundedItems = this.findMenuItemsByUrl(url, this.menuItems);
+    foundedItems.forEach((item) => {
+      this.activateMenuItem(item);
+    });
   }
 
-  private fixActiveItemAfterClick(items?: MenuItem[]) {
-    if (!this.activeItem && this.keyActivePage) {
-      let foundDashboardItem = items?.find(
-        (m) => m['key'] === this.keyActivePage
-      );
-
-      if (foundDashboardItem) {
-        this.activeItem = foundDashboardItem;
-        foundDashboardItem.command = (e) => e.item;
-        foundDashboardItem.expanded = true;
+  deactivateMenuItems(items: MenuItem[]): void {
+    items.forEach((item: MenuItem) => {
+      item.isActive = false;
+      item.isCollapsed = true;
+      if (item.children) {
+        this.deactivateMenuItems(item.children);
       }
+    });
+  }
+
+  findMenuItemsByUrl(
+    url: string,
+    items: MenuItem[],
+    foundedItems: MenuItem[] = []
+  ): MenuItem[] {
+    items.forEach((item: MenuItem) => {
+      if (item.route === url) {
+        foundedItems.push(item);
+      } else if (item.children) {
+        this.findMenuItemsByUrl(url, item.children, foundedItems);
+      }
+    });
+    return foundedItems;
+  }
+
+  activateMenuItem(item: MenuItem): void {
+    item.isActive = true;
+    if (item.children) {
+      item.isCollapsed = false;
+    }
+    this.activatedMenuItems.push(item);
+    if (item.parentId) {
+      this.activateMenuItem(this.menuItemsMap[item.parentId]);
     }
   }
 
-  activeMenu(event: any) {
-    let node;
-    if (event.target.classList.contains('p-submenu-header') == true) {
-      node = 'submenu';
-    } else if (event.target.tagName === 'SPAN') {
-      node = event.target.parentNode.parentNode;
-    } else {
-      node = event.target.parentNode;
+  isMenuItemVisible(item: MenuItem): boolean {
+    if (!item.permissionName) {
+      return true;
     }
+    // return this.permission.isGranted(item.permissionName);
+    return false;
+  }
+  sidebarClose() {
+    const sidebar = document.body.querySelector('.sidebar');
+    const menu = document.body.querySelector('.menu-btn');
+    sidebar?.classList.toggle('sidebarclose');
+    menu?.classList.remove('open');
+  }
 
-    if (node != 'submenu') {
-      let menuitem = document.getElementsByClassName(
-        'p-panelmenu-header-content'
-      );
-      for (let i = 0; i < menuitem.length; i++) {
-        menuitem[i].classList.remove('active');
+  getActiveLocationPage(page: number) {
+    if (page) {
+      this.sidebarClose();
+      this.deactivateMenuItems(this.menuItems);
+
+      if (this.primaryUrlSegmentGroup) {
+        this.activateMenuItems(this.primaryUrlSegmentGroup);
       }
-      node.classList.add('active');
+      this.changeDetection.detectChanges();
     }
   }
 }
