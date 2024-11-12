@@ -1,6 +1,14 @@
-<div class="header-wrapper">
-  <header class="header_box">
-    <nav class="navbar_box">
+<div class="header-wrapper d-flex align-items-center bg-white">
+  <div
+    [ngClass]="{ open: menuBtnActive }"
+    (click)="openMenu()"
+    class="menu-btn"
+  >
+    <div class="menu-btn__burger"></div>
+  </div>
+  <header class="header">
+    <nav class="navbar">
+      <!-- <header-brand></header-brand> -->
       <app-header-user></app-header-user>
     </nav>
   </header>

@@ -14,8 +14,7 @@ import { UserAvatarComponent } from './layout/user-avatar/user-avatar.component'
 import { ButtonModule } from 'primeng/button';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { AnimateModule } from 'primeng/animate';
-import { SidebarComponent } from './layout/sidebar/sidebar.component';
-import { SidebarMenuComponent } from './layout/sidebar/sidebar-menu.component';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CookieService } from 'ngx-cookie-service';
 
@@ -23,6 +22,13 @@ import { TokenInterceptor } from './interseptors/token.interceptor';
 import { ToastrModule } from 'ngx-toastr';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { SignalrService } from './services/signalr.service';
+import { RouterModule } from '@angular/router';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { SidebarMenuComponent } from './layout/sidebar/sidebar-menu.component';
+import { LayoutStoreService } from './shared/layout/layout-store.service';
+
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { CollapseModule } from 'ngx-bootstrap/collapse';
 //import { TokenInterceptor } from './interseptors/token.interceptor';
 
 @NgModule({
@@ -47,6 +53,10 @@ import { SignalrService } from './services/signalr.service';
     // NgToastModule,
     ToastrModule.forRoot(),
     ModalModule.forRoot(),
+
+    RouterModule,
+    BsDropdownModule.forRoot(),
+    CollapseModule.forRoot(),
   ],
 
   providers: [
@@ -65,6 +75,7 @@ import { SignalrService } from './services/signalr.service';
     //   deps: [SignalrService],
     //   multi: true,
     // },
+    LayoutStoreService,
   ],
   bootstrap: [AppComponent],
 })

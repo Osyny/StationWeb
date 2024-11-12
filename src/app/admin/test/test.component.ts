@@ -12,8 +12,9 @@ import {
 })
 export class TestComponent implements AfterViewInit {
   ngAfterViewInit(): void {
-    DashboardPageService.getInstance().setData(
-      `${PageRedirectEnumForAdmin.task}_${SubPageRedirectEnumForAdmin.test}`
+    let page = Number.parseInt(
+      `${PageRedirectEnumForAdmin.task}` + `${SubPageRedirectEnumForAdmin.test}`
     );
+    DashboardPageService.getInstance().setData(page);
   }
 }
