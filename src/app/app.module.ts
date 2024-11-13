@@ -29,6 +29,7 @@ import { LayoutStoreService } from './shared/layout/layout-store.service';
 
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { HeaderBrandComponent } from './layout/header-brand/header-brand.component';
 //import { TokenInterceptor } from './interseptors/token.interceptor';
 
 @NgModule({
@@ -41,6 +42,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
     SidebarComponent,
 
     SidebarMenuComponent,
+    HeaderBrandComponent,
   ],
   imports: [
     BrowserModule,

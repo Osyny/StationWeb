@@ -25,9 +25,10 @@
       class="nav-link"
       [routerLink]="item.route"
       [class.active]="item.isActive"
+      [class.isChild]="item.isChild"
       (click)="sidebarClose()"
     >
-      <svg class="icon" width="20" height="20">
+      <svg class="icon" width="16" height="16">
         <use [attr.href]="'/assets/img/sprite.svg#' + item.icon"></use>
       </svg>
       <span>{{ item.label }}</span>
@@ -47,6 +48,7 @@
       class="nav-link"
       href="javascript:;"
       [class.active]="item.isActive"
+      [class.sub-open]="!item.isCollapsed"
       (click)="item.isCollapsed = !item.isCollapsed"
       (click)="sidebarClose()"
     >

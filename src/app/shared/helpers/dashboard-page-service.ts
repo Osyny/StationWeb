@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-type CallbackType = (page: string) => void;
+type CallbackType = (page: number) => void;
 @Injectable()
 export class DashboardPageService {
   public static getInstance(): DashboardPageService {
@@ -11,9 +11,9 @@ export class DashboardPageService {
   }
 
   private static instance: DashboardPageService;
-  private currentPage?: string;
+  private currentPage?: number;
   private subPage?: number;
-  private callback: CallbackType = (page: string) => {};
+  private callback: CallbackType = (page: number) => {};
 
   constructor() {}
 
@@ -25,7 +25,7 @@ export class DashboardPageService {
     return this.currentPage;
   }
 
-  setData(page: string, subMenu?: number) {
+  setData(page: number, subMenu?: number) {
     this.currentPage = page;
     if (subMenu) {
       this.subPage = this.subPage;

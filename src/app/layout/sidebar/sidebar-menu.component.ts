@@ -11,11 +11,13 @@ import {
   NavigationEnd,
   PRIMARY_OUTLET,
   Event,
+  ResolveStart,
 } from '@angular/router';
 
 import { AppComponentBase } from '../../shared/app-component-base';
 import { MenuItem } from '../../shared/layout/menu-item';
 import { DashboardPageService } from '../../shared/helpers/dashboard-page-service';
+import { SidebarMenuOnChangesService } from '../services/sidebar-menu.services';
 
 @Component({
   selector: 'sidebar-menu',
@@ -26,35 +28,58 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
   menuItems: MenuItem[] = [];
   menuItemsMap: { [key: number]: MenuItem } = {};
   activatedMenuItems: MenuItem[] = [];
-  // routerEvents: BehaviorSubject<RouterEvent> = new BehaviorSubject(undefined);
-  homeRoute = '/app/about';
-  primaryUrlSegmentGroup?: string;
 
-  // user: UserLoginInfoDto;
+  homeRoute = '/admin';
+  primaryUrlSegmentGroup?: string;
+  isLoadGetInstancePage: boolean = false;
+  page?: number;
 
   constructor(
     injector: Injector,
     private router: Router,
-    private changeDetection: ChangeDetectorRef
+    private changeDetection: ChangeDetectorRef,
+    private _sidebarMenuOnChangesService: SidebarMenuOnChangesService
   ) {
     super(injector);
-    // this.router.events.subscribe(this.routerEvents);
   }
 
   ngOnInit(): void {
     DashboardPageService.getInstance().subsribe((page) => {
       this.getActiveLocationPage(page);
+      this._sidebarMenuOnChangesService.updatePageChanged(page);
     });
+    this._sidebarMenuOnChangesService.pageChanged$.subscribe(
+      (res) => (this.page = res)
+    );
     this.setMenuItems();
+
     this.changeDetection.detectChanges();
+  }
+
+  foundItem(page: number, menuItems: MenuItem[]): MenuItem {
+    let foundItem: MenuItem = new MenuItem('', '', '', '');
+
+    for (let m of menuItems) {
+      if (m.id === page) {
+        foundItem = m;
+        break;
+      }
+      if (m.children) {
+        foundItem = this.foundItem(page, m.children);
+        if (foundItem) {
+          break;
+        }
+      }
+    }
+    return foundItem;
   }
 
   getMenuItems(): MenuItem[] {
     return [
       new MenuItem('Dashboard', '/admin', 'welcome', ''),
       new MenuItem('Tasks', '', '', '', [
-        new MenuItem('Test', '/admin/test', 'dots-vertical1', '', [], true),
-        new MenuItem('Users2_1', '/', 'dots-vertical1', '', [], true),
+        new MenuItem('Test', '/admin/test', 'dots-vertical', '', [], true),
+        new MenuItem('Test2', '/', 'dots-vertical', '', [], true),
       ]),
     ];
   }
@@ -62,27 +87,34 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
   setMenuItems() {
     this.menuItems = this.getMenuItems();
     this.patchMenuItems(this.menuItems);
-    this.router.events.subscribe((event: Event) => {
-      if (event instanceof NavigationEnd) {
-        let currentUrl = this.homeRoute;
-        if (event.url !== '/') {
-          currentUrl = event.url;
-        } else if (
-          event instanceof NavigationEnd &&
-          !!event.urlAfterRedirects &&
-          event.urlAfterRedirects !== '/'
-        ) {
-          currentUrl = event.urlAfterRedirects;
-        }
-        const primaryUrlSegmentGroup =
-          this.router.parseUrl(currentUrl).root.children[PRIMARY_OUTLET];
+    if (this.page && this.page === 1) {
+      let url = this.foundItem(this.page, this.menuItems);
 
-        if (primaryUrlSegmentGroup) {
-          this.primaryUrlSegmentGroup = '/' + primaryUrlSegmentGroup.toString();
-          this.activateMenuItems(this.primaryUrlSegmentGroup);
+      this.activateMenuItems(url?.route);
+    } else {
+      this.router.events.subscribe((event: Event) => {
+        if (event instanceof NavigationEnd) {
+          let currentUrl = this.homeRoute;
+          if (event.url !== '/') {
+            currentUrl = event.url;
+          } else if (
+            event instanceof NavigationEnd &&
+            !!event.urlAfterRedirects &&
+            event.urlAfterRedirects !== '/'
+          ) {
+            currentUrl = event.urlAfterRedirects;
+          }
+          const primaryUrlSegmentGroup =
+            this.router.parseUrl(currentUrl).root.children[PRIMARY_OUTLET];
+
+          if (primaryUrlSegmentGroup) {
+            this.primaryUrlSegmentGroup =
+              '/' + primaryUrlSegmentGroup.toString();
+            this.activateMenuItems(this.primaryUrlSegmentGroup);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   patchMenuItems(items: MenuItem[], parentId?: number): void {
@@ -149,7 +181,6 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
     if (!item.permissionName) {
       return true;
     }
-    // return this.permission.isGranted(item.permissionName);
     return false;
   }
   sidebarClose() {
@@ -164,9 +195,10 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
       this.sidebarClose();
       this.deactivateMenuItems(this.menuItems);
 
-      if (this.primaryUrlSegmentGroup) {
-        this.activateMenuItems(this.primaryUrlSegmentGroup);
-      }
+      let url = !this.primaryUrlSegmentGroup
+        ? this.homeRoute
+        : this.primaryUrlSegmentGroup;
+      this.activateMenuItems(url);
       this.changeDetection.detectChanges();
     }
   }
