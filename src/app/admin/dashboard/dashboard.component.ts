@@ -18,13 +18,17 @@ import { SignalrService } from '../../services/signalr.service';
 import { AuthService } from '../../services/auth.service';
 import { DashboardPageService } from '../../shared/helpers/dashboard-page-service';
 import { PageRedirectEnumForAdmin } from '../../enums/page-redirect.enum';
+import { SidebarMenuOnChangesService } from '../../layout/services/sidebar-menu.services';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent extends AppComponentBase implements OnInit {
+export class DashboardComponent
+  extends AppComponentBase
+  implements OnInit, AfterViewInit
+{
   chargeStations: ChargeStationDisplayedDto[] = [];
   loading = false;
   formDropdownGroup!: FormGroup;
@@ -45,24 +49,27 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     injector: Injector,
     private chargeStationService: ChargeStationService,
     public signalRService: SignalrService,
-    private authService: AuthService
+    private authService: AuthService,
+    private _sidebarMenuOnChangesService: SidebarMenuOnChangesService
   ) {
     super(injector);
   }
   ngOnInit(): void {
-    DashboardPageService.getInstance().setData(
-      PageRedirectEnumForAdmin.dashboard
-    );
-    DashboardPageService.getInstance().subsribe((page) => {
-      this.isActiveDashboard = page === 1;
-    });
-
     setInterval(() => this.lazyLoadStation(false, true), 10000);
-    //this.startHttpRequestSignalR1();
+    this._sidebarMenuOnChangesService.pageChanged$.subscribe((res) => {
+      this.isActiveDashboard = res === 1;
+    });
+    //this.startHttpRequestSignalR();
 
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
     });
+  }
+
+  ngAfterViewInit(): void {
+    DashboardPageService.getInstance().setData(
+      PageRedirectEnumForAdmin.dashboard
+    );
   }
 
   lazyLoadStation(
@@ -94,6 +101,7 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
 
   private startHttpRequest = () => {
     let token = this.authService.getToken();
+    debugger;
     if (this.authService.getToken() && this.isActiveDashboard) {
       this.chargeStationService
         .getUpdateStatusesAsync()
@@ -200,7 +208,7 @@ export class DashboardComponent extends AppComponentBase implements OnInit {
     this.lazyLoadStation(true);
   }
 
-  private startHttpRequestSignalR1 = () => {
+  private startHttpRequestSignalR = () => {
     let token = this.authService.getToken();
     if (this.authService.getToken()) {
       this.signalRService.hubConnection?.invoke('Hello').catch((error) => {
