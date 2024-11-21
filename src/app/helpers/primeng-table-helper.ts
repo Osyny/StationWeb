@@ -18,7 +18,7 @@ export class PrimengTableHelper {
   }
 
   isSkipLoading(totalCount: number): boolean {
-    if (this.inited && totalCount) {
+    if (this.inited === true && totalCount) {
       this.inited = false;
       return true;
     }
