@@ -33,7 +33,7 @@ export class DashboardComponent
   loading = false;
   formDropdownGroup!: FormGroup;
 
-  rows = 10;
+  rows = 8;
   first = 0;
   filterText!: string;
   totalRecords: number = 0;
@@ -55,7 +55,7 @@ export class DashboardComponent
     super(injector);
   }
   ngOnInit(): void {
-    setInterval(() => this.lazyLoadStation(false, true), 10000);
+    setInterval(() => this.lazyLoadStation(false, true), 50000);
     this._sidebarMenuOnChangesService.pageChanged$.subscribe((res) => {
       this.isActiveDashboard = res === 1;
     });
@@ -72,12 +72,18 @@ export class DashboardComponent
     );
   }
 
+  isPaginated(event?: TableLazyLoadEvent) {
+    let res = event?.first != this.totalRecords && this.totalRecords != 0;
+    return res;
+  }
+
   lazyLoadStation(
     isFilter: boolean,
     isUpdate?: boolean,
     event?: TableLazyLoadEvent
   ) {
     if (
+      this.isPaginated(event) &&
       !isFilter &&
       this._primengTableHelper.isSkipLoading(this.totalRecords)
     ) {
@@ -101,7 +107,7 @@ export class DashboardComponent
 
   private startHttpRequest = () => {
     let token = this.authService.getToken();
-    debugger;
+
     if (this.authService.getToken() && this.isActiveDashboard) {
       this.chargeStationService
         .getUpdateStatusesAsync()
