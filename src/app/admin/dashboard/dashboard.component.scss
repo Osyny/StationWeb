@@ -43,8 +43,14 @@
 .actions {
   width: 17%;
 }
-button:hover {
-  cursor: pointer;
+button {
+  text-decoration: none;
+  &:hover {
+    cursor: pointer;
+    span {
+      text-decoration: underline;
+    }
+  }
 }
 
 @media screen and (max-width: 1700px) {
