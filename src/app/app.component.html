@@ -1,15 +1,17 @@
-<div *ngIf="user" class="container-fluid container-fluid--height">
-  <app-header></app-header>
-  <main>
-    <div class="content d-flex">
-      <sidebar></sidebar>
-      <div class="authorized-main-box"><router-outlet></router-outlet></div>
-    </div>
-  </main>
-</div>
+<ng-container *ngIf="user">
+  <div class="container-fluid container-fluid--height">
+    <app-header></app-header>
+    <main>
+      <div class="content d-flex">
+        <sidebar></sidebar>
+        <div class="authorized-main-box"><router-outlet></router-outlet></div>
+      </div>
+    </main>
+  </div>
+</ng-container>
 
-<div [hidden]="user">
-  <div class="main-box login-box">
+<ng-container *ngIf="!user">
+  <div class="main-box">
     <router-outlet></router-outlet>
   </div>
-</div>
+</ng-container>
