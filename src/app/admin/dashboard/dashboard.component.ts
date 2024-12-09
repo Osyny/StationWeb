@@ -53,13 +53,29 @@ export class DashboardComponent
     private _sidebarMenuOnChangesService: SidebarMenuOnChangesService
   ) {
     super(injector);
+    this.signalRService.startConnection();
   }
   ngOnInit(): void {
-    setInterval(() => this.lazyLoadStation(false, true), 50000);
+    // setInterval(() => this.lazyLoadStation(false, true), 50000);
     this._sidebarMenuOnChangesService.pageChanged$.subscribe((res) => {
       this.isActiveDashboard = res === 1;
     });
-    //this.startHttpRequestSignalR();
+    this.signalRService.initiateSignalrConnection();
+
+    this.signalRService.hubGetUpdateStatuses?.subscribe((res) => {
+      let token = this.authService.getToken();
+      if (token && res) {
+        this.chargeStations.forEach((st) => {
+          let foundDisplayed = res.chargeStations?.find(
+            (station) => station.id === st.id
+          );
+
+          st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
+          st.statusDisplayed = st.status ? 'online' : 'offline';
+          console.log(`${st.id} -> ${st.status}`);
+        });
+      }
+    });
 
     this.formDropdownGroup = new FormGroup({
       value: new FormControl(),
@@ -98,37 +114,14 @@ export class DashboardComponent
     this.inputData.filterOwnerId = !this.selectedOwnerId
       ? 0
       : this.selectedOwnerId;
-    if (isUpdate) {
-      setTimeout(() => this.startHttpRequest());
-    } else {
-      setTimeout(() => this.loadStations(this.inputData));
-    }
+
+    setTimeout(() => this.loadStations(this.inputData));
+    // if (isUpdate) {
+    //   setTimeout(() => this.startHttpRequest());
+    // } else {
+    //   setTimeout(() => this.loadStations(this.inputData));
+    // }
   }
-
-  private startHttpRequest = () => {
-    let token = this.authService.getToken();
-
-    if (this.authService.getToken() && this.isActiveDashboard) {
-      this.chargeStationService
-        .getUpdateStatusesAsync()
-        .pipe(
-          takeUntil(this.$unsubscribe),
-          finalize(() => (this.loading = false))
-        )
-        .subscribe((res) => {
-          console.log('UPDATE: ');
-          this.chargeStations.forEach((st) => {
-            let foundDisplayed = res.chargeStations?.find(
-              (station) => station.id === st.id
-            );
-
-            st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
-            st.statusDisplayed = st.status ? 'online' : 'offline';
-            console.log(`${st.id} -> ${st.status}`);
-          });
-        });
-    }
-  };
 
   loadStations(input: DataInput) {
     this.loading = true;
@@ -214,23 +207,28 @@ export class DashboardComponent
     this.lazyLoadStation(true);
   }
 
-  private startHttpRequestSignalR = () => {
+  private startHttpRequest = () => {
     let token = this.authService.getToken();
-    if (this.authService.getToken()) {
-      this.signalRService.hubConnection?.invoke('Hello').catch((error) => {
-        console.log(`Signal R error -> ${error}`);
-      });
 
-      this.signalRService.hubConnection
-        ?.invoke('GetUpdateStatuses')
-        .catch((error) => {
-          console.log(`Signal R error -> ${error}`);
+    if (this.authService.getToken() && this.isActiveDashboard) {
+      this.chargeStationService
+        .getUpdateStatusesAsync()
+        .pipe(
+          takeUntil(this.$unsubscribe),
+          finalize(() => (this.loading = false))
+        )
+        .subscribe((res) => {
+          console.log('UPDATE: ');
+          this.chargeStations.forEach((st) => {
+            let foundDisplayed = res.chargeStations?.find(
+              (station) => station.id === st.id
+            );
+
+            st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
+            st.statusDisplayed = st.status ? 'online' : 'offline';
+            console.log(`${st.id} -> ${st.status}`);
+          });
         });
-
-      this.signalRService?.hubHelloMessage?.subscribe((r) => {
-        let res = r;
-        console.log(`Signal R  --> ${res}`);
-      });
     }
   };
 }
