@@ -15,7 +15,7 @@ export class AccountComponent {
     this.authService.user?.subscribe((x) => (this.user = x));
 
     if (this.user) {
-      this.router.navigateByUrl('/admin');
+      // this.router.navigateByUrl('/admin');
     }
   }
 }

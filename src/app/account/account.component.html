@@ -1,7 +1,9 @@
-<div class="login-box">
-  <div class="card-box">
-    <div class="card-body login-card-body">
-      <router-outlet></router-outlet>
+<ng-container *ngIf="!user">
+  <div class="login-box">
+    <div class="card-box">
+      <div class="card-body login-card-body">
+        <router-outlet></router-outlet>
+      </div>
     </div>
   </div>
-</div>
+</ng-container>

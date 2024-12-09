@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { environment } from '../../environments/environment.development';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { StationResponse } from '../models/charge-station.model';
 @Injectable({
@@ -14,49 +14,40 @@ export class SignalrService {
   hubUrl: string = `${this.apiUrl}/stationhub`;
 
   hubHelloMessage?: BehaviorSubject<string>;
-  hubGetUpdateStatuses?: BehaviorSubject<StationResponse>;
+  hubGetUpdateStatuses?: BehaviorSubject<StationResponse> | null;
   token?: string | undefined | null;
+  stationResponse!: StationResponse;
 
   constructor(private authService: AuthService) {
     this.hubHelloMessage = new BehaviorSubject<string>('');
+    this.hubGetUpdateStatuses = new BehaviorSubject<StationResponse>(
+      this.stationResponse
+    );
     this.token = this.authService.getToken();
   }
 
-  public startConnection = () => {
+  public async startConnection() {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${this.apiUrl}/ChargeStation/getUpdateStatuses`)
+      .withUrl(this.hubUrl)
+      .withAutomaticReconnect()
       .build();
 
-    this.hubConnection
-      .start()
-      .then(() => console.log('Connection started'))
-      .catch((err) => console.log('Error while starting connection: ' + err));
-  };
+    await this.hubConnection.start();
+  }
+
   public async initiateSignalrConnection(): Promise<void> {
     try {
       this.hubConnection = new signalR.HubConnectionBuilder()
-        .withUrl(this.hubUrl, {
-          skipNegotiation: true,
-          transport: signalR.HttpTransportType.WebSockets,
-        })
+        .withUrl(this.hubUrl)
         .withAutomaticReconnect()
         .build();
-      await this.hubConnection.start();
-      // this.setSignalrClientMethods();
-      this.setSignalrGetUpdateStatuses();
 
-      console.log(
-        `SignalR connection success! connectionId: ${this.hubConnection.connectionId}`
-      );
+      await this.hubConnection.start();
+
+      this.setSignalrGetUpdateStatuses();
     } catch (error) {
       console.log(`SignalR connection error: ${error}`);
     }
-  }
-
-  private setSignalrClientMethods(): void {
-    this.hubConnection.on('DisplayMessage', (message: string) => {
-      this.hubHelloMessage?.next(message);
-    });
   }
 
   private setSignalrGetUpdateStatuses(): void {
@@ -66,5 +57,24 @@ export class SignalrService {
         this.hubGetUpdateStatuses?.next(stationResponse);
       }
     );
+
+    this.hubConnection.invoke('UpdateStatuses').catch((error: any) => {
+      console.log(`SignalrDemoHub.UpdateStatuses() error: ${error}`);
+      alert('SignalrDemoHub.UpdateStatuses() error!, see console for details.');
+    });
+  }
+
+  private setSignalrClientMethods(): void {
+    this.hubConnection.on('DisplayMessage', (message: string) => {
+      this.hubHelloMessage?.next(message);
+    });
+    console.log(
+      `SignalR connection success! connectionId: ${this.hubConnection.connectionId}`
+    );
+
+    this.hubConnection.invoke('Hello').catch((error: any) => {
+      console.log(`SignalrDemoHub.Hello() error: ${error}`);
+      alert('SignalrDemoHub.Hello() error!, see console for details.');
+    });
   }
 }

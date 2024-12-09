@@ -10,7 +10,7 @@
   </div>
 </ng-container>
 
-<ng-container *ngIf="!user">
+<ng-container *ngIf="user === null && user === undefined">
   <div class="main-box">
     <router-outlet></router-outlet>
   </div>

@@ -1,4 +1,5 @@
 import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { SignalrService } from './services/signalr.service';
 import {
   BrowserModule,
   provideClientHydration,
@@ -21,7 +22,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { TokenInterceptor } from './interseptors/token.interceptor';
 import { ToastrModule } from 'ngx-toastr';
 import { ModalModule } from 'ngx-bootstrap/modal';
-import { SignalrService } from './services/signalr.service';
+
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { SidebarMenuComponent } from './layout/sidebar/sidebar-menu.component';
@@ -69,11 +70,11 @@ import { HeaderBrandComponent } from './layout/header-brand/header-brand.compone
     },
     provideClientHydration(),
     CookieService,
-    // SignalrService,
+    SignalrService,
     // {
     //   provide: APP_INITIALIZER,
     //   useFactory: (signalrService: SignalrService) => () =>
-    //     signalrService.initiateSignalrConnection(),
+    //     signalrService.startConnection(),
     //   deps: [SignalrService],
     //   multi: true,
     // },
