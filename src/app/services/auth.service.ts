@@ -11,6 +11,7 @@ import { AccountResponse } from '../models/account/account-response';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { UserStoreService } from './user/user-store.service';
+import { UserStatusOnChangesService } from '../account/services/user-status-changed.service';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,8 @@ export class AuthService {
     private router: Router,
     private http: HttpClient,
     private cookie: CookieService,
-    private userStore: UserStoreService
+    private userStore: UserStoreService,
+    private _userStatusOnChangesService: UserStatusOnChangesService
   ) {
     const localStorage = document.defaultView?.localStorage;
     this.localStorage = localStorage;
@@ -109,6 +111,7 @@ export class AuthService {
   }
 
   removeStore() {
+    this._userStatusOnChangesService.updateIsUserLoginChanged(false);
     this.isAuthorized = false;
     localStorage.removeItem('token');
     localStorage.removeItem('currentUser');

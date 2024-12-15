@@ -9,6 +9,7 @@ import { UserStoreService } from '../../services/user/user-store.service';
 import { ToastrService } from 'ngx-toastr';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
+import { UserStatusOnChangesService } from '../services/user-status-changed.service';
 
 @Component({
   selector: 'app-login',
@@ -24,6 +25,7 @@ export class LoginComponent implements OnInit {
   eyeIcon: string = 'fa-eye-slash';
   modalRef!: BsModalRef;
   user?: UserDto | null;
+  isAuthorized: boolean = true;
 
   $unsubscribe = new Subject<void>();
 
@@ -35,12 +37,18 @@ export class LoginComponent implements OnInit {
     private toastr: ToastrService,
     private userStore: UserStoreService,
     private auth: AuthService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private _userStatusOnChangesService: UserStatusOnChangesService
   ) {
-    this.authService.user?.subscribe((x) => (this.user = x));
+    this.authService.user?.subscribe((x) => {
+      this.user = x;
+    });
   }
 
   ngOnInit() {
+    this._userStatusOnChangesService.isUserLoginChanged$.subscribe((res) => {
+      this.isAuthorized = res;
+    });
     this.form = this.formBuilder.group({
       email: ['', Validators.required],
       password: ['', Validators.required],
@@ -68,6 +76,7 @@ export class LoginComponent implements OnInit {
         if (!user) {
           this.toastr.error('Gmail or password is wrong!', 'Error');
         } else {
+          this._userStatusOnChangesService.updateIsUserLoginChanged(true);
           this.auth.storeToken(res.token);
           this.auth.setLocalData(res);
           //  this.auth.storeRefreshToken(res.refreshToken);
