@@ -1,17 +1,21 @@
-<ng-container *ngIf="user">
-  <div class="container-fluid container-fluid--height">
+<div class="container-fluid container-fluid--height">
+  <div *ngIf="user != null">
     <app-header></app-header>
-    <main>
-      <div class="content d-flex">
-        <sidebar></sidebar>
-        <div class="authorized-main-box"><router-outlet></router-outlet></div>
-      </div>
-    </main>
   </div>
-</ng-container>
 
-<ng-container *ngIf="user === null && user === undefined">
-  <div class="main-box">
+  <main>
+    <div class="content d-flex">
+      <div *ngIf="user != null">
+        <sidebar></sidebar>
+      </div>
+
+      <div class="authorized-main-box"><router-outlet></router-outlet></div>
+    </div>
+  </main>
+</div>
+
+<!-- <ng-container *ngIf="!(isAuthorized$ | async)">
+  <div [hidden]="isAuthorized$ | async" class="main-box">
     <router-outlet></router-outlet>
   </div>
-</ng-container>
+</ng-container> -->
