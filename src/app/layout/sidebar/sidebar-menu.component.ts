@@ -77,9 +77,16 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
   getMenuItems(): MenuItem[] {
     return [
       new MenuItem('Dashboard', '/admin', 'welcome', ''),
-      new MenuItem('Tasks', '', '', '', [
-        new MenuItem('Test', '/admin/test', 'dots-vertical', '', [], true),
-        new MenuItem('Test2', '/', 'dots-vertical', '', [], true),
+      new MenuItem('Information', '', '', '', [
+        new MenuItem('About us', '/admin/test', 'dots-vertical', '', [], true),
+        new MenuItem(
+          'Settings',
+          '/admin/settings',
+          'dots-vertical',
+          '',
+          [],
+          true
+        ),
       ]),
     ];
   }

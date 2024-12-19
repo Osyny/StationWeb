@@ -11,9 +11,15 @@ import { TableModule } from 'primeng/table';
 import { DropdownModule } from 'primeng/dropdown';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { SignalrService } from '../services/signalr.service';
+import { SettingsComponent } from './settings/settings.component';
 
 @NgModule({
-  declarations: [AdminComponent, DashboardComponent, TestComponent],
+  declarations: [
+    AdminComponent,
+    DashboardComponent,
+    TestComponent,
+    SettingsComponent,
+  ],
   imports: [
     CommonModule,
     AdminRoutingModule,

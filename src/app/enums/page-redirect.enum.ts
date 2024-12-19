@@ -5,4 +5,5 @@ export enum PageRedirectEnumForAdmin {
 
 export enum SubPageRedirectEnumForAdmin {
   test = 1,
+  settings = 2,
 }
