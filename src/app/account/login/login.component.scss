@@ -43,6 +43,18 @@ input {
 }
 
 :host::ng-deep {
+  .input-pass {
+    display: flex;
+    flex-direction: row;
+  }
+  .btn-has-eye-icon {
+    align-content: center;
+    margin-left: -27px;
+    svg {
+      width: 19px;
+      height: 15px;
+    }
+  }
   .btn-has-icon-left {
     position: relative;
     left: 133px;

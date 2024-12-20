@@ -1,5 +1,11 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { finalize, Subject, takeUntil } from 'rxjs';
 import { UserDto } from '../../models/user-model';
 import { Router } from '@angular/router';
@@ -10,6 +16,7 @@ import { ToastrService } from 'ngx-toastr';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ForgotPasswordModalComponent } from '../forgot-password-modal/forgot-password-modal.component';
 import { UserStatusOnChangesService } from '../services/user-status-changed.service';
+import { ValidationError } from '../../shared/validation/validation.api';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +24,8 @@ import { UserStatusOnChangesService } from '../services/user-status-changed.serv
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
+  email?: string;
+  password?: string;
   form!: FormGroup;
   loading = false;
 
@@ -49,51 +58,50 @@ export class LoginComponent implements OnInit {
     this._userStatusOnChangesService.isUserLoginChanged$.subscribe((res) => {
       this.isAuthorized = res;
     });
-    this.form = this.formBuilder.group({
-      email: ['', Validators.required],
-      password: ['', Validators.required],
-    });
   }
 
-  onSubmit() {
+  onSubmit(ngForm: NgForm) {
     this.loading = true;
-    if (this.form.invalid) {
+    if (ngForm.invalid) {
+      ngForm.form.markAllAsTouched();
       return;
     }
     this.loading = true;
 
     let user: UserDto | undefined;
-    this.authService
-      .login(this.form.value.email, this.form.value.password)
-      .pipe(
-        takeUntil(this.$unsubscribe),
-        finalize(() => (this.loading = false))
-      )
-      .subscribe((res) => {
-        this.loading = true;
 
-        user = res?.user;
-        if (!user) {
-          this.toastr.error('Gmail or password is wrong!', 'Error');
-        } else {
-          this._userStatusOnChangesService.updateIsUserLoginChanged(true);
-          this.auth.storeToken(res.token);
-          this.auth.setLocalData(res);
-          //  this.auth.storeRefreshToken(res.refreshToken);
-          const tokenPayload = this.auth.decodedToken();
+    if (this.email && this.password) {
+      this.authService
+        .login(this.email, this.password)
+        .pipe(
+          takeUntil(this.$unsubscribe),
+          finalize(() => (this.loading = false))
+        )
+        .subscribe((res) => {
+          this.loading = true;
 
-          this.userStore.setFullNameForStore(tokenPayload.userName);
-          this.userStore.setRoleForStore(tokenPayload.role);
+          user = res?.user;
+          if (!user) {
+            this.toastr.error('Gmail or password is wrong!', 'Error');
+          } else {
+            this._userStatusOnChangesService.updateIsUserLoginChanged(true);
+            this.auth.storeToken(res.token);
+            this.auth.setLocalData(res);
+            //  this.auth.storeRefreshToken(res.refreshToken);
+            const tokenPayload = this.auth.decodedToken();
 
-          this.toastr.success('Login is success!', 'Success');
-          this.router.navigateByUrl('/admin');
-        }
-      });
+            this.userStore.setFullNameForStore(tokenPayload.userName);
+            this.userStore.setRoleForStore(tokenPayload.role);
+
+            this.toastr.success('Login is success!', 'Success');
+            this.router.navigateByUrl('/admin');
+          }
+        });
+    }
   }
 
   hideShowPass() {
     this.isText = !this.isText;
-    this.isText ? (this.eyeIcon = 'fa-eye') : (this.eyeIcon = 'fa-eye-slash');
     this.isText ? (this.type = 'text') : (this.type = 'password');
   }
 
