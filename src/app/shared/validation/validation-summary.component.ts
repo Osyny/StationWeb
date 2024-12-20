@@ -10,18 +10,18 @@ import {
 } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 import { AppComponentBase } from '../app-component-base';
-import { AbpValidationError } from './abp-validation.api';
+import { ValidationError } from './validation.api';
 
 @Component({
   selector: 'validation-summary',
-  templateUrl: './abp-validation.summary.component.html',
+  templateUrl: './validation-summary.component.html',
 })
-export class AbpValidationSummaryComponent
+export class ValidationSummaryComponent
   extends AppComponentBase
   implements OnInit
 {
   readonly admin: string = 'admin';
-  defaultValidationErrors: Partial<AbpValidationError>[] = [
+  defaultValidationErrors: Partial<ValidationError>[] = [
     { name: 'required', localizationKey: 'This field is required' },
     {
       name: 'minlength',
@@ -47,7 +47,7 @@ export class AbpValidationSummaryComponent
       localizationKey: 'PairsDoNotMatch',
     },
   ];
-  validationErrors = <AbpValidationError[]>this.defaultValidationErrors;
+  validationErrors = <ValidationError[]>this.defaultValidationErrors;
 
   @Input() title: string = '';
   @Input()
@@ -59,7 +59,9 @@ export class AbpValidationSummaryComponent
     super(injector);
   }
 
-  @Input() set customValidationErrors(val: AbpValidationError[]) {
+  //  @Input() customValidationErrors: any;
+
+  @Input() set customValidationErrors(val: ValidationError[]) {
     if (val && val.length > 0) {
       const defaults = this.defaultValidationErrors.filter(
         (defaultValidationError) =>
@@ -68,11 +70,11 @@ export class AbpValidationSummaryComponent
               customValidationError.name === defaultValidationError.name
           )
       );
-      this.validationErrors = <AbpValidationError[]>[...defaults, ...val];
+      this.validationErrors = <ValidationError[]>[...defaults, ...val];
     }
   }
 
-  isError(validationError: AbpValidationError): boolean {
+  isError(validationError: ValidationError): boolean {
     let result: boolean = false;
     if (this.control?.errors) {
       result = this.control?.errors[validationError.name];
@@ -80,7 +82,7 @@ export class AbpValidationSummaryComponent
     return result;
   }
 
-  getValidationError(validationError: AbpValidationError) {
+  getValidationError(validationError: ValidationError) {
     let result = '';
     if (this.control?.errors) {
       result = this.control?.errors[validationError.name];
@@ -102,13 +104,20 @@ export class AbpValidationSummaryComponent
     }
   }
 
-  getValidationErrorMessage(error: AbpValidationError): string {
+  getValidationErrorMessage(error: ValidationError): string {
     if (this.controlEl) {
       this._renderer.addClass(this.controlEl, 'is-invalid');
     }
     let propertyValue = '';
     if (this.control?.errors && this.defaultValidationErrors) {
       let result = this.control.errors[error.name];
+      // if (this.customValidationErrors) {
+      //   const errorValue = this.customValidationErrors[0];
+      //   if (errorValue) {
+      //     this.isValidationError.emit(true);
+      //     return errorValue?.localizationKey ? errorValue?.localizationKey : '';
+      //   }
+      // }
 
       const errorValue = this.defaultValidationErrors?.find(
         (err) => err?.name === error?.name
@@ -118,7 +127,6 @@ export class AbpValidationSummaryComponent
         return error?.localizationKey ? error?.localizationKey : '';
       }
     }
-
     if (this.control?.value === '' && error.name === 'validateEqual') {
       return '';
     }

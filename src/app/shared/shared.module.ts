@@ -1,17 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbpValidationSummaryComponent } from './validation/abp-validation-summary.component';
+import { ValidationSummaryComponent } from './validation/validation-summary.component';
 import { AbpModalHeaderComponent } from './modal/abp-modal-header.component';
 import { SpinerComponent } from '../layout/spiner/spiner.component';
 
 @NgModule({
   declarations: [
-    AbpValidationSummaryComponent,
+    ValidationSummaryComponent,
     AbpModalHeaderComponent,
     SpinerComponent,
   ],
   exports: [
-    AbpValidationSummaryComponent,
+    ValidationSummaryComponent,
     AbpModalHeaderComponent,
     SpinerComponent,
   ],
