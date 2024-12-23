@@ -69,7 +69,6 @@ export class LoginComponent implements OnInit {
     this.loading = true;
 
     let user: UserDto | undefined;
-
     if (this.email && this.password) {
       this.authService
         .login(this.email, this.password)

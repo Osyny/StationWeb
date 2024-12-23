@@ -9,6 +9,7 @@ import { ChargeStationService } from '../../services/charge-station.service';
 import {
   ChargeStationDto,
   ChargeStationResponse,
+  ConnectorDto,
 } from '../../models/charge-station.model';
 import { ChargeStationDisplayedDto } from './dtos/charge-station-displayed.dto';
 import { InputHelper } from '../../helpers/input-helper';
@@ -72,7 +73,14 @@ export class DashboardComponent
 
           st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
           st.statusDisplayed = st.status ? 'online' : 'offline';
-          console.log(`${st.id} -> ${st.status}`);
+
+          if (st.status) {
+            if (foundDisplayed) {
+              st.connectors = foundDisplayed?.connectors;
+            }
+          } else {
+            st.connectors = [];
+          }
         });
       }
     });
@@ -116,11 +124,6 @@ export class DashboardComponent
       : this.selectedOwnerId;
 
     setTimeout(() => this.loadStations(this.inputData));
-    // if (isUpdate) {
-    //   setTimeout(() => this.startHttpRequest());
-    // } else {
-    //   setTimeout(() => this.loadStations(this.inputData));
-    // }
   }
 
   loadStations(input: DataInput) {
@@ -161,6 +164,10 @@ export class DashboardComponent
     displayData.ownerName = data.owner?.name;
     displayData.statusDisplayed = data.status ? 'online' : 'offline';
 
+    if (!data.status) {
+      displayData.connectors = [];
+    }
+
     let existOwner = this.ownerSelectItems.find(
       (o) => o.name === data.owner?.name
     );
@@ -191,6 +198,13 @@ export class DashboardComponent
 
   setComparedClass(value: string) {
     return value;
+  }
+  setStatusNameClass(value: string) {
+    let res: string = 'status-offline';
+    if (value === 'online') {
+      res = 'status-online';
+    }
+    return res;
   }
 
   editOrAdd(station?: ChargeStationDisplayedDto) {
@@ -226,7 +240,6 @@ export class DashboardComponent
 
             st.status = foundDisplayed?.status ? foundDisplayed?.status : false;
             st.statusDisplayed = st.status ? 'online' : 'offline';
-            console.log(`${st.id} -> ${st.status}`);
           });
         });
     }
