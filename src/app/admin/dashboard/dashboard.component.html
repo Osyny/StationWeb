@@ -119,11 +119,31 @@
             <td class="sticky-col truncate">{{ station?.name }}</td>
 
             <td class="sticky-col truncate">{{ station.ownerName }}</td>
-            <td
-              class="sticky-col"
-              [ngClass]="setComparedClass(station.statusDisplayed)"
-            >
-              {{ station.statusDisplayed }}
+            <td class="sticky-col">
+              <div [ngClass]="setComparedClass(station.statusDisplayed)">
+                {{ station.statusDisplayed }}
+              </div>
+              <div
+                *ngIf="station.connectors?.length > 0"
+                class="status-name-box"
+                [ngClass]="setStatusNameClass(station.statusDisplayed)"
+              >
+                <div
+                  *ngFor="
+                    let connectorStatus of station.connectors;
+                    let i = index
+                  "
+                  class="status-name"
+                >
+                  {{ i + 1 }}.
+                  <span
+                    [ngStyle]="{
+                      color: connectorStatus.connectorUiStatus.color
+                    }"
+                    >{{ connectorStatus.connectorUiStatus.name }}</span
+                  >
+                </div>
+              </div>
             </td>
             <td class="sticky-col col-actions">
               <div class="btns">
