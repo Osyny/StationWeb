@@ -60,6 +60,11 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
+  }
+
   onSubmit(ngForm: NgForm) {
     this.loading = true;
     if (ngForm.invalid) {
@@ -89,8 +94,8 @@ export class LoginComponent implements OnInit {
             //  this.auth.storeRefreshToken(res.refreshToken);
             const tokenPayload = this.auth.decodedToken();
 
-            this.userStore.setFullNameForStore(tokenPayload.userName);
-            this.userStore.setRoleForStore(tokenPayload.role);
+            this.userStore.setFullNameForStore(tokenPayload.UserName);
+            this.userStore.setRoleForStore(tokenPayload.Role);
 
             this.toastr.success('Login is success!', 'Success');
             this.router.navigateByUrl('/admin');

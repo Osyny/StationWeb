@@ -12,6 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { UserStoreService } from './user/user-store.service';
 import { UserStatusOnChangesService } from '../account/services/user-status-changed.service';
+import { PermissionDto } from '../models/account/permissions.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,8 @@ export class AuthService {
   localStorage!: Storage | undefined;
   userSubject: BehaviorSubject<UserDto | null> | undefined;
   public user: Observable<UserDto | null> | undefined;
+
+  permissions?: PermissionDto[];
 
   private readonly JWT_TOKEN = 'JWT_TOKEN';
   private readonly REFRESH_TOKEN = 'REFRESH_TOKEN';
@@ -50,6 +53,7 @@ export class AuthService {
       this.isAuthorized = session ? true : false;
 
       this.userPayload = this.decodedToken();
+      this.getPermissionCategoriesFromToken();
     }
   }
 
@@ -177,10 +181,22 @@ export class AuthService {
   }
 
   getfullNameFromToken() {
-    if (this.userPayload) return this.userPayload.userName;
+    if (this.userPayload) return this.userPayload.UserName;
   }
 
   getRoleFromToken() {
-    if (this.userPayload) return this.userPayload.role;
+    if (this.userPayload) return this.userPayload.Role;
+  }
+
+  getPermissionCategoriesFromToken() {
+    if (this.userPayload) {
+      const parsedJSON = JSON.parse(this.userPayload.Permissions);
+      const permissionObj: PermissionDto[] = parsedJSON as PermissionDto[];
+
+      this._userStatusOnChangesService.updatePermissionDtoChanged(
+        permissionObj
+      );
+      this.permissions = permissionObj;
+    }
   }
 }
