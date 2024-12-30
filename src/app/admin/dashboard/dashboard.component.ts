@@ -20,6 +20,8 @@ import { AuthService } from '../../services/auth.service';
 import { DashboardPageService } from '../../shared/helpers/dashboard-page-service';
 import { PageRedirectEnumForAdmin } from '../../enums/page-redirect.enum';
 import { SidebarMenuOnChangesService } from '../../layout/services/sidebar-menu.services';
+import { UserStatusOnChangesService } from '../../account/services/user-status-changed.service';
+import { PermissionDto } from '../../models/account/permissions.dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -43,6 +45,8 @@ export class DashboardComponent
   inputData = new DataInput();
   isActiveDashboard: boolean = false;
 
+  currentUserPermissions?: PermissionDto[];
+
   $unsubscribe = new Subject<void>();
   private readonly _primengTableHelper = new PrimengTableHelper();
 
@@ -51,7 +55,8 @@ export class DashboardComponent
     private chargeStationService: ChargeStationService,
     public signalRService: SignalrService,
     private authService: AuthService,
-    private _sidebarMenuOnChangesService: SidebarMenuOnChangesService
+    private _sidebarMenuOnChangesService: SidebarMenuOnChangesService,
+    private _userStatusOnChangesService: UserStatusOnChangesService
   ) {
     super(injector);
     this.signalRService.startConnection();
@@ -60,6 +65,9 @@ export class DashboardComponent
     // setInterval(() => this.lazyLoadStation(false, true), 50000);
     this._sidebarMenuOnChangesService.pageChanged$.subscribe((res) => {
       this.isActiveDashboard = res === 1;
+    });
+    this._userStatusOnChangesService.permissionDtoChanged$.subscribe((res) => {
+      this.currentUserPermissions = res;
     });
     this.signalRService.initiateSignalrConnection();
 
@@ -94,6 +102,11 @@ export class DashboardComponent
     DashboardPageService.getInstance().setData(
       PageRedirectEnumForAdmin.dashboard
     );
+  }
+
+  ngOnDestroy(): void {
+    this.$unsubscribe.next();
+    this.$unsubscribe.complete();
   }
 
   isPaginated(event?: TableLazyLoadEvent) {
