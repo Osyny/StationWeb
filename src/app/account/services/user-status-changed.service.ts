@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { PermissionDto } from '../../models/account/permissions.dto';
+import {
+  PermissionCategoryClaims,
+  PermissionDto,
+} from '../../models/account/permissions.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -17,13 +20,14 @@ export class UserStatusOnChangesService {
   }
 
   //Permissions data
-  private permissionDtoChangedSubject: BehaviorSubject<PermissionDto[]> =
-    new BehaviorSubject<PermissionDto[]>([]);
+  private permissionDtoChangedSubject: BehaviorSubject<
+    PermissionCategoryClaims[]
+  > = new BehaviorSubject<PermissionCategoryClaims[]>([]);
 
-  permissionDtoChanged$: Observable<PermissionDto[]> =
+  permissionDtoChanged$: Observable<PermissionCategoryClaims[]> =
     this.permissionDtoChangedSubject.asObservable();
 
-  updatePermissionDtoChanged(permissions: PermissionDto[]): void {
+  updatePermissionDtoChanged(permissions: PermissionCategoryClaims[]): void {
     this.permissionDtoChangedSubject.next(permissions);
   }
 }

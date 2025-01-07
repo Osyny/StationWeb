@@ -1,14 +1,14 @@
 export class PermissionDto {
-  PermissionCategoryClaimDto?: PermissionCategoryClaimDto[];
+  PermissionCategoryClaimDto?: PermissionCategoryClaims[];
 }
 
-export class PermissionCategoryClaimDto {
+export class PermissionCategoryClaims {
   Name?: string;
   Value?: number;
-  Actions?: PermissionActionClaimDto[];
+  Actions?: PermissionActionClaim[];
 }
 
-export class PermissionActionClaimDto {
+export class PermissionActionClaim {
   Name?: string;
   Value?: number;
 }
