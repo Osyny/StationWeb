@@ -21,7 +21,12 @@ import { DashboardPageService } from '../../shared/helpers/dashboard-page-servic
 import { PageRedirectEnumForAdmin } from '../../enums/page-redirect.enum';
 import { SidebarMenuOnChangesService } from '../../layout/services/sidebar-menu.services';
 import { UserStatusOnChangesService } from '../../account/services/user-status-changed.service';
-import { PermissionDto } from '../../models/account/permissions.dto';
+import {
+  PermissionCategoryClaims,
+  PermissionDto,
+} from '../../models/account/permissions.dto';
+import { PermissionService } from '../../services/permission.service';
+import { RoleEnum } from '../../enums/role.enum';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,7 +50,7 @@ export class DashboardComponent
   inputData = new DataInput();
   isActiveDashboard: boolean = false;
 
-  currentUserPermissions?: PermissionDto[];
+  currentUserPermissions?: PermissionCategoryClaims[];
 
   $unsubscribe = new Subject<void>();
   private readonly _primengTableHelper = new PrimengTableHelper();
@@ -56,7 +61,8 @@ export class DashboardComponent
     public signalRService: SignalrService,
     private authService: AuthService,
     private _sidebarMenuOnChangesService: SidebarMenuOnChangesService,
-    private _userStatusOnChangesService: UserStatusOnChangesService
+    private _userStatusOnChangesService: UserStatusOnChangesService,
+    private permissionService: PermissionService
   ) {
     super(injector);
     this.signalRService.startConnection();
@@ -232,6 +238,15 @@ export class DashboardComponent
 
   changedOwnerFilter($event: any) {
     this.lazyLoadStation(true);
+  }
+
+  get isDisabled() {
+    const isCreateGranted = this.permissionService.isCreateGranted(
+      'Create',
+      'Charge Station'
+    );
+    let res = this.loading || !isCreateGranted;
+    return res;
   }
 
   private startHttpRequest = () => {

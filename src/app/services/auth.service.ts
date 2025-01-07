@@ -12,7 +12,12 @@ import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { UserStoreService } from './user/user-store.service';
 import { UserStatusOnChangesService } from '../account/services/user-status-changed.service';
-import { PermissionDto } from '../models/account/permissions.dto';
+import {
+  PermissionActionClaim,
+  PermissionCategoryClaims,
+  PermissionDto,
+} from '../models/account/permissions.dto';
+import { Action } from 'rxjs/internal/scheduler/Action';
 
 @Injectable({
   providedIn: 'root',
@@ -23,8 +28,7 @@ export class AuthService {
   userSubject: BehaviorSubject<UserDto | null> | undefined;
   public user: Observable<UserDto | null> | undefined;
 
-  permissions?: PermissionDto[];
-
+  permissions: PermissionCategoryClaims[] = [];
   private readonly JWT_TOKEN = 'JWT_TOKEN';
   private readonly REFRESH_TOKEN = 'REFRESH_TOKEN';
   private readonly BEARER = 'Bearer';
@@ -185,18 +189,46 @@ export class AuthService {
   }
 
   getRoleFromToken() {
-    if (this.userPayload) return this.userPayload.Role;
+    if (this.userPayload) {
+      return this.userPayload.Role;
+    }
   }
 
   getPermissionCategoriesFromToken() {
     if (this.userPayload) {
       const parsedJSON = JSON.parse(this.userPayload.Permissions);
-      const permissionObj: PermissionDto[] = parsedJSON as PermissionDto[];
+      console.log('************', parsedJSON['PermissionCategoryClaims']);
+      console.log('************', parsedJSON.PermissionCategoryClaims);
+      const jsonArray = parsedJSON['PermissionCategoryClaims'] as [];
+
+      jsonArray.forEach((item) => {
+        this.getData(item);
+      });
 
       this._userStatusOnChangesService.updatePermissionDtoChanged(
-        permissionObj
+        this.permissions
       );
-      this.permissions = permissionObj;
     }
+  }
+
+  getData(data: any) {
+    let displayed = new PermissionCategoryClaims();
+    displayed.Name = data.Name;
+    displayed.Value = data.Value;
+    displayed.Actions = [];
+
+    (data.Actions as []).forEach((action) => {
+      let i = this.getDataAction(action);
+      displayed.Actions?.push(i);
+    });
+
+    this.permissions?.push(displayed);
+  }
+
+  getDataAction(data: any): PermissionActionClaim {
+    let displayed = new PermissionActionClaim();
+    displayed.Name = data.Name;
+    displayed.Value = data.Value;
+    return displayed;
   }
 }
