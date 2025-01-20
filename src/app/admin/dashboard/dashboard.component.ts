@@ -27,6 +27,7 @@ import {
 } from '../../models/account/permissions.dto';
 import { PermissionService } from '../../services/permission.service';
 import { RoleEnum } from '../../enums/role.enum';
+import { UserStoreService } from '../../services/user/user-store.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -51,6 +52,7 @@ export class DashboardComponent
   isActiveDashboard: boolean = false;
 
   currentUserPermissions?: PermissionCategoryClaims[];
+  role?: string;
 
   $unsubscribe = new Subject<void>();
   private readonly _primengTableHelper = new PrimengTableHelper();
@@ -62,11 +64,23 @@ export class DashboardComponent
     private authService: AuthService,
     private _sidebarMenuOnChangesService: SidebarMenuOnChangesService,
     private _userStatusOnChangesService: UserStatusOnChangesService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private userStore: UserStoreService
   ) {
     super(injector);
     this.signalRService.startConnection();
   }
+
+  get isDisabled() {
+    const isCreateGranted = this.permissionService.isCreateGranted(
+      'Create',
+      'Charge Station',
+      this.role
+    );
+    let res = this.loading || !isCreateGranted;
+    return res;
+  }
+
   ngOnInit(): void {
     // setInterval(() => this.lazyLoadStation(false, true), 50000);
     this._sidebarMenuOnChangesService.pageChanged$.subscribe((res) => {
@@ -74,6 +88,11 @@ export class DashboardComponent
     });
     this._userStatusOnChangesService.permissionDtoChanged$.subscribe((res) => {
       this.currentUserPermissions = res;
+    });
+
+    this.userStore.getRoleFromStore().subscribe((val) => {
+      const roleFromToken = this.authService.getRoleFromToken();
+      this.role = val || roleFromToken;
     });
     this.signalRService.initiateSignalrConnection();
 
@@ -238,15 +257,6 @@ export class DashboardComponent
 
   changedOwnerFilter($event: any) {
     this.lazyLoadStation(true);
-  }
-
-  get isDisabled() {
-    const isCreateGranted = this.permissionService.isCreateGranted(
-      'Create',
-      'Charge Station'
-    );
-    let res = this.loading || !isCreateGranted;
-    return res;
   }
 
   private startHttpRequest = () => {
