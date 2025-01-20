@@ -28,14 +28,17 @@ export class PermissionService {
     this.userService.getRoles().subscribe((result) => {
       this.roles = result.roleSelectList;
     });
-    this.userStore.getRoleFromStore().subscribe((val) => {
-      let role = this.roles.find((r) => r.name === val);
-      this.role = role?.id;
-    });
   }
 
-  isCreateGranted(action: string, category: string): boolean {
-    let r = this.role === RoleEnum.Admin;
+  isCreateGranted(
+    action: string,
+    category: string,
+    userRole?: string
+  ): boolean {
+    if (!this.roles?.find((r) => r.name === userRole)) {
+      return false;
+    }
+    this.role = this.roles.find((r) => r.name === userRole)?.id;
     if (this.role && this.role === RoleEnum.Admin) {
       return true;
     }
